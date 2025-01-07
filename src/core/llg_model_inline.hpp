@@ -3,7 +3,7 @@
 
 #include "config/config.hpp"
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 
 #include "Particle.hpp"
 #include "random.hpp"
@@ -89,5 +89,5 @@ inline void apply_magnetic_torque(Particle &p, double time_step) {
   // Einstein-de-Haas effect
   p.torque() += 1./gyromag * llg(sim_time, dip, p) * p.dipm();
 }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // LLG_MODEL_INLINE_HPP

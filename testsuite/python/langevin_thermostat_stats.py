@@ -181,7 +181,7 @@ class LangevinThermostat(ut.TestCase, thermostats_common.ThermostatsCommon):
                 # Rotation without particle anisotropy
                 system.thermostat.set_langevin(
                     kT=kT, gamma=gamma, gamma_rotation=gamma_rot_i, seed=41)
-        elif espressomd.has_features("LLG_MODEL"):
+        elif espressomd.has_features("MAGNETODYNAMICS_LLG_MODEL"):
             if espressomd.has_features("PARTICLE_ANISOTROPY"):
                 # particle anisotropy and LLG model
                 system.thermostat.set_langevin(

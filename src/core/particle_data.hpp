@@ -124,13 +124,13 @@ void set_particle_type(int p_id, int type);
  */
 void set_particle_mol_id(int part, int mid);
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 /** Call only on the head node: set particle's dipole orientation using quaternions.
  *  @param part the particle.
  *  @param dip_quat its new value for quaternions of the dipole moment.
  */
 void set_particle_dip_quat(int part, Utils::Quaternion<double> const &dip_quat);
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #ifdef ROTATION
 /** Call only on the head node: set particle orientation using quaternions.
@@ -216,7 +216,7 @@ void set_particle_axis_quat_body(int part,
 
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 /** Call only on the head node: set particle effective field.
  *  @param part the particle.
  *  @param heff its effective field (consisting of the stray field of other particles, 
@@ -252,7 +252,7 @@ void set_particle_llg_model_params(int part, bool use_llg_model,
                                    double Homega, Utils::Vector3d Hext, double Hani, double Galpha,
                                    double gyromag, double magdt);
 
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #ifdef THERMOSTAT_PER_PARTICLE
 /** Call only on the head node: set particle frictional coefficient.
@@ -271,13 +271,13 @@ void set_particle_gamma_rot(int part, double gamma_rot);
 void set_particle_gamma_rot(int part, Utils::Vector3d const &gamma_rot);
 #endif // PARTICLE_ANISOTROPY
 #endif //ROTATION
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 #ifndef PARTICLE_ANISOTROPY
 void set_particle_gamma_mag(int part, double gamma_mag);
 #else
 void set_particle_gamma_mag(int part, const Utils::Vector3d &gamma_mag);
 #endif // PARTICLE_ANISOTROPY
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES
@@ -394,7 +394,7 @@ inline Utils::Vector3d get_particle_axis(Particle const *p) {
 
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 
 /*
 inline Utils::Vector3d Hext
@@ -419,6 +419,6 @@ inline void get_particle_llg_model_params(Particle const *p, int &use_llg_model,
   magdt = p->llg_model_params().magdt;
 }
 
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #endif

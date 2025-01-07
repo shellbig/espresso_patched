@@ -91,7 +91,7 @@ class Magnetodynamics(ut.TestCase):
         system.periodicity = [False, False, False]
         system.time = 0.
     
-    @utx.skipIfMissingFeatures(["LLG_MODEL", "DIPOLES", "EXTERNAL_FORCES"])
+    @utx.skipIfMissingFeatures(["MAGNETODYNAMICS_LLG_MODEL", "DIPOLES", "EXTERNAL_FORCES"])
     def test_stoner_wohlfarth(self):
         def stoner_wohlfarth(phi0, theta, h):
             """Stoner Wohlfarth minimizer"""
@@ -146,7 +146,7 @@ class Magnetodynamics(ut.TestCase):
             atol=.01)
         self.tearDown()
     
-    @utx.skipIfMissingFeatures(["LLG_MODEL", "DIPOLES", "EXTERNAL_FORCES"])
+    @utx.skipIfMissingFeatures(["MAGNETODYNAMICS_LLG_MODEL", "DIPOLES", "EXTERNAL_FORCES"])
     def test_langevin(self):
         """
         Check the alignment of the dipole with the field (1024 particles,

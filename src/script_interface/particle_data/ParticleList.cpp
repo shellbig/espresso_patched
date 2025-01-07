@@ -138,13 +138,13 @@ Variant ParticleList::do_call_method(std::string const &name,
 Setting 'dip' is sufficient as the length of the vector defines the scalar \
 dipole moment.");
     }
-#ifndef LLG_MODEL
+#ifndef MAGNETODYNAMICS_LLG_MODEL
     if (params.count("dip") and params.count("quat")) {
       throw std::invalid_argument("Contradicting attributes: 'dip' and 'quat'. \
 Setting 'dip' overwrites the rotation of the particle around the dipole axis. \
 Set attribute 'quat' together with 'dipm' (scalar dipole moment) instead.");
     }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // DIPOLES
     ParticleHandle p_handle{};
     p_handle.do_construct(params);

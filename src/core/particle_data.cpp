@@ -159,13 +159,13 @@ using UpdatePropertyMessage = boost::variant
         , UpdateProperty<Utils::Vector3d, &Prop::gamma_rot>
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 #ifndef PARTICLE_ANISOTROPY
         , UpdateProperty<double, &Prop::gamma_mag>
 #else
         , UpdateProperty<Utils::Vector3d, &Prop::gamma_mag>
 #endif // PARTICLE_ANISOTROPY
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
         , UpdateProperty<uint8_t, &Prop::ext_flag>
@@ -499,7 +499,7 @@ void set_particle_dipm(int part, double dipm) {
   mpi_update_particle_property<double, &ParticleProperties::dipm>(part, dipm);
 }
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 void set_particle_dip(int part, Utils::Vector3d const &dip) {
   Utils::Quaternion<double> quat;
   double dipm;
@@ -514,7 +514,7 @@ void set_particle_dip(int part, Utils::Vector3d const &dip) {
   set_particle_dipm(part, dipm);
   set_particle_quat(part, quat);
 }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif
 
 #ifdef DIPOLE_FIELD_TRACKING
@@ -676,11 +676,11 @@ void set_particle_mol_id(int part, int mid) {
   mpi_update_particle_property<int, &ParticleProperties::mol_id>(part, mid);
 }
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 void set_particle_dip_quat(int part, Utils::Quaternion<double> const &dip_quat) {
   mpi_update_particle_property<Utils::Quaternion<double>, &ParticleProperties::dip_quat>(part, dip_quat);
 }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #ifdef ROTATION
 void set_particle_quat(int part, Utils::Quaternion<double> const &quat) {
@@ -742,7 +742,7 @@ void set_particle_gamma_rot(int part, Utils::Vector3d const &gamma_rot) {
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 #ifndef PARTICLE_ANISOTROPY
 void set_particle_gamma_mag(int part, double gamma_mag) {
   mpi_update_particle_property<double, &ParticleProperties::gamma_mag>(
@@ -754,7 +754,7 @@ void set_particle_gamma_mag(int part, Utils::Vector3d const &gamma_mag) {
       part, gamma_mag);
 }
 #endif // PARTICLE_ANISOTROPY
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #endif // THERMOSTAT_PER_PARTICLE
 

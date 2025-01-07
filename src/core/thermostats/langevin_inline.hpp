@@ -129,7 +129,7 @@ friction_thermo_langevin_rotation(LangevinThermostat const &langevin,
 
 #endif // ROTATION
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 /** Langevin thermostat for thermal field in magnetization dynamics.
  *  @param[in]     langevin       Parameters
  *  @param[in]     p              Particle
@@ -158,5 +158,5 @@ mag_field_thermo_langevin(LangevinThermostat const &langevin,
       langevin.rng_counter(), langevin.rng_seed(), p.id());
   return hadamard_product(pref_noise, noise);
 }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif

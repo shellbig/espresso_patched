@@ -173,7 +173,7 @@ cdef class Thermostat:
                     lang_dict["gamma_rotation"] = langevin.gamma_rotation
             ELSE:
                 lang_dict["gamma_rotation"] = None
-            IF LLG_MODEL:
+            IF MAGNETODYNAMICS_LLG_MODEL:
                 IF PARTICLE_ANISOTROPY:
                     lang_dict["gamma_magnet"] = [langevin.gamma_magnet[0],
                                                  langevin.gamma_magnet[1],
@@ -258,7 +258,7 @@ cdef class Thermostat:
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(utils.make_Vector3d((0., 0., 0.)))
                 mpi_set_brownian_gamma_rot(utils.make_Vector3d((0., 0., 0.)))
-            IF LLG_MODEL:
+            IF MAGNETODYNAMICS_LLG_MODEL:
                 mpi_set_langevin_gamma_mag(utils.make_Vector3d((0., 0., 0.)))
         ELSE:
             mpi_set_langevin_gamma(0.)
@@ -266,7 +266,7 @@ cdef class Thermostat:
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(0.)
                 mpi_set_brownian_gamma_rot(0.)
-            IF LLG_MODEL:
+            IF MAGNETODYNAMICS_LLG_MODEL:
                 mpi_set_langevin_gamma_mag(0.)
 
         mpi_set_thermo_switch(THERMO_OFF)
@@ -293,7 +293,7 @@ cdef class Thermostat:
             if ``PARTICLE_ANISOTROPY`` is also compiled in.
         gamma_magnet : :obj:`float`, optional
             The same applies to ``gamma_magnet``, which requires the feature
-            ``LLG_MODEL`` to work properly. But also accepts three floats
+            ``MAGNETODYNAMICS_LLG_MODEL`` to work properly. But also accepts three floats
             if ``PARTICLE_ANISOTROPY`` is also compiled in.
         act_on_virtual : :obj:`bool`, optional
             If ``True`` the thermostat will act on virtual sites, default is
@@ -414,7 +414,7 @@ cdef class Thermostat:
                 if gamma_rotation is None:
                     # rotational gamma is translational gamma
                     gamma_rotation = gamma
-        IF LLG_MODEL:
+        IF MAGNETODYNAMICS_LLG_MODEL:
             IF PARTICLE_ANISOTROPY:
                 cdef utils.Vector3d gamma_mag_vec
                 if gamma_magnet is None:
@@ -437,13 +437,13 @@ cdef class Thermostat:
             mpi_set_langevin_gamma(gamma_vec)
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(gamma_rot_vec)
-            IF LLG_MODEL:
+            IF MAGNETODYNAMICS_LLG_MODEL:
                 mpi_set_langevin_gamma_mag(gamma_mag_vec)
         ELSE:
             mpi_set_langevin_gamma(gamma)
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(gamma_rotation)
-            IF LLG_MODEL:
+            IF MAGNETODYNAMICS_LLG_MODEL:
                 mpi_set_langevin_gamma_mag(gamma_magnet)
 
         mpi_set_thermo_virtual(act_on_virtual)

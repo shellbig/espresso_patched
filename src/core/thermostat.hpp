@@ -383,9 +383,9 @@ void mpi_set_brownian_gamma_rot(Thermostat::GammaType const &gamma);
 
 void mpi_set_langevin_gamma(Thermostat::GammaType const &gamma);
 void mpi_set_langevin_gamma_rot(Thermostat::GammaType const &gamma);
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 void mpi_set_langevin_gamma_mag(Thermostat::GammaType const &gamma);
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 void mpi_set_thermo_virtual(bool thermo_virtual);
 

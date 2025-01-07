@@ -412,13 +412,13 @@ ParticleHandle::ParticleHandle() {
        },
        [this]() { return particle().gamma_rot(); }},
 #endif // ROTATION
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
       {"gamma_mag",
        [this](Variant const &value) {
          set_particle_gamma_mag(m_pid, get_gamma_safe(value));
        },
        [this]() { return particle().gamma_mag(); }},
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
       {"pos_folded", AutoParameter::read_only,
        [this]() { return folded_position(particle().pos(), ::box_geo); }},
@@ -621,13 +621,13 @@ static auto const contradicting_arguments_quat = std::vector<
       "Setting 'dip' is sufficient as it defines the scalar dipole moment."}},
     {{"quat", "director",
       "Setting 'quat' is sufficient as it defines the director."}},
-#ifndef LLG_MODEL
+#ifndef MAGNETODYNAMICS_LLG_MODEL
     {{"dip", "quat",
       "Setting 'dip' would overwrite 'quat'. Set 'quat' and 'dipm' instead."}},
     {{"dip", "director",
       "Setting 'dip' would overwrite 'director'. Set 'director' and "
       "'dipm' instead."}},
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 }};
 #endif // ROTATION
 
@@ -668,7 +668,7 @@ void ParticleHandle::do_construct(VariantMap const &params) {
     std::vector<std::string> skip = {
         "pos_folded", "pos", "quat", "director",  "id",    "lees_edwards_flag",
         "exclusions", "node", "image_box", "bonds", "__cpt_sentinel",
-#ifndef LLG_MODEL
+#ifndef MAGNETODYNAMICS_LLG_MODEL
         "dip",
 #endif
     };
@@ -682,11 +682,11 @@ void ParticleHandle::do_construct(VariantMap const &params) {
     } else if (has_param("director")) {
       do_set_parameter("director", params.at("director"));
     }
-#ifndef LLG_MODEL
+#ifndef MAGNETODYNAMICS_LLG_MODEL
     else if (has_param("dip")) {
       do_set_parameter("dip", params.at("dip"));
     }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // ROTATION
     for (auto const &kv : params) {
       if (std::find(skip.begin(), skip.end(), kv.first) == skip.end()) {

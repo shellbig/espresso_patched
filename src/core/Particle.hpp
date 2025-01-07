@@ -298,14 +298,14 @@ struct ParticleProperties {
   Utils::Vector3d gamma_rot = {-1., -1., -1.};
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 /** Friction coefficient for LLG_model */
 #ifndef PARTICLE_ANISOTROPY
   double gamma_mag = -1.;
 #else
   Utils::Vector3d gamma_mag = {-1., -1., -1.};
 #endif // PARTICLE_ANISOTROPY
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES
@@ -383,7 +383,7 @@ struct ParticleProperties {
 #ifdef ROTATION
     ar & gamma_rot;
 #endif
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
     ar & gamma_mag;
 #endif
 #endif // THERMOSTAT_PER_PARTICLE
@@ -646,7 +646,7 @@ public:
 #ifdef DIPOLES
   auto const &dipm() const { return p.dipm; }
   auto &dipm() { return p.dipm; }
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
   auto const &dip_quat() const { return p.dip_quat; }
   auto &dip_quat() { return p.dip_quat; }
   auto const &heff() const { return p.heff; }
@@ -675,7 +675,7 @@ public:
   }
 #else
   auto calc_dip() const { return calc_director() * dipm(); }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // DIPOLES
 #ifdef DIPOLE_FIELD_TRACKING
   auto const &dip_fld() const { return p.dip_fld; }
@@ -752,10 +752,10 @@ public:
   auto const &gamma_rot() const { return p.gamma_rot; }
   auto &gamma_rot() { return p.gamma_rot; }
 #endif // ROTATION
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
   auto const &gamma_mag() const { return p.gamma_mag; }
   auto &gamma_mag() { return p.gamma_mag; }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
   auto &fixed() { return p.ext_flag; }

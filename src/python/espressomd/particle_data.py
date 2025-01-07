@@ -258,19 +258,19 @@ class ParticleHandle(ScriptInterfaceHelper):
         The effective field at the position of the particle
 
         .. note::
-           This needs the feature ``LLG_MODEL``.
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
 
     htherm: (3,) array_like of :obj:`float`
         The thermal field
 
         .. note::
-           This needs the feature ``LLG_MODEL``.
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
 
     dip_omega: (3,) array_like of :obj:`float`
         The angular velocity of the magnetic dipole
 
         .. note::
-           This needs the feature ``LLG_MODEL``.
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
 
     llg_model_params: :obj:`tuple`
         Magnetization dynamics parameters.
@@ -289,7 +289,7 @@ class ParticleHandle(ScriptInterfaceHelper):
         specified for the multi-step method.
 
         .. note::
-           This needs the feature ``LLG_MODEL``
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``
 
     ext_force: (3,) array_like of :obj:`float`
         An additional external force applied to the particle.
@@ -347,7 +347,7 @@ class ParticleHandle(ScriptInterfaceHelper):
 
         .. note::
             This needs features ``THERMOSTAT_PER_PARTICLE``,
-            ``LLG_MODEL`` and optionally ``PARTICLE_ANISOTROPY``.
+            ``MAGNETODYNAMICS_LLG_MODEL`` and optionally ``PARTICLE_ANISOTROPY``.
 
     rotation: (3,) array_like of :obj:`bool`
         Switches the particle's rotational degrees of freedom in the
