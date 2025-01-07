@@ -138,9 +138,9 @@ void VirtualSitesRelative::update() const {
 
       if (have_quaternions()) {
         p.quat() = p_ref.quat() * p.vs_relative().quat;
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
         if (p.use_egg_model()) { egg_model_update_axis(p_ref, p); } 
-#endif // EGG_MODEL
+#endif // MAGNETODYNAMICS_EGG_MODEL
       }
 
   }
