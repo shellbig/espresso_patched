@@ -112,8 +112,10 @@ using UpdatePropertyMessage = boost::variant
 #ifdef DIPOLES
         , UpdateProperty<double, &Prop::dipm>
 #endif
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
         , UpdateProperty<Utils::Vector3d, &Prop::dip_fld>
+#endif //DIPOLE_FIELD_TRACKING
+#ifdef MAGNETODYNAMICS_TSW_MODEL
         , UpdateProperty<bool, &Prop::sw_real>
         , UpdateProperty<bool, &Prop::sw_virt>
         , UpdateProperty<double, &Prop::phi0>
@@ -123,27 +125,27 @@ using UpdatePropertyMessage = boost::variant
         , UpdateProperty<double, &Prop::tau0_inv>
         , UpdateProperty<double, &Prop::tau_trans_inv>
         , UpdateProperty<double, &Prop::dt_incr>
-#endif
+#endif//MAGNETODYNAMICS_TSW_MODEL
 #ifdef VIRTUAL_SITES
         , UpdateProperty<bool, &Prop::is_virtual>
 #ifdef VIRTUAL_SITES_RELATIVE
         , UpdateProperty<ParticleProperties::VirtualSitesRelativeParameters,
                          &Prop::vs_relative>
 #endif
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
         , UpdateProperty<ParticleProperties::EggModelParameters,
                          &Prop::egg_model_params>
-#endif
+#endif//MAGNETODYNAMICS_EGG_MODEL
 #endif // VIRTUAL_SITES
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
         , UpdateProperty<Utils::Quaternion<double>, &Prop::dip_quat>
         , UpdateProperty<Utils::Vector3d, &Prop::heff>
         , UpdateProperty<Utils::Vector3d, &Prop::htherm>
         , UpdateProperty<Utils::Vector3d, &Prop::dip_omega>
         , UpdateProperty<ParticleProperties::LLGModelParameters,
                          &Prop::llg_model_params>
-#endif
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #ifdef THERMOSTAT_PER_PARTICLE
 #ifndef PARTICLE_ANISOTROPY
         , UpdateProperty<double, &Prop::gamma>
@@ -515,11 +517,14 @@ void set_particle_dip(int part, Utils::Vector3d const &dip) {
 #endif // LLG_MODEL
 #endif
 
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
+
 void set_particle_dip_fld(int part, const Utils::Vector3d &dip_fld) {
   mpi_update_particle_property<Utils::Vector3d, &ParticleProperties::dip_fld>(
       part, dip_fld);
 }
+#endif // DIPOLE_FIELD_TRACKING
+#ifdef MAGNETODYNAMICS_TSW_MODEL
 
 void set_particle_sw_real(int part, bool sw_real) {
   mpi_update_particle_property<bool, &ParticleProperties::sw_real>(part,
@@ -555,7 +560,7 @@ void set_particle_dt_incr(int part, double dt_incr) {
   mpi_update_particle_property<double, &ParticleProperties::dt_incr>(part,
                                                                      dt_incr);
 }
-#endif
+#endif // MAGNETODYNAMICS_TSW_MODEL
 #ifdef VIRTUAL_SITES
 void set_particle_virtual(int part, bool is_virtual) {
   mpi_update_particle_property<bool, &ParticleProperties::is_virtual>(
@@ -587,7 +592,7 @@ void set_particle_vs_relative(int part, int vs_relative_to, double vs_distance,
 }
 #endif
 
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
 
 void set_particle_axis_quat_body(int part,
                                  Utils::Quaternion<double> const &axis_quat) {
@@ -613,9 +618,9 @@ void set_particle_egg_model_params(int part, bool use_egg_model,
                                &ParticleProperties::egg_model_params>(
       part, egg_model_params);
 }
-#endif // EGG_MODEL
+#endif // MAGNETODYNAMICS_EGG_MODEL
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 void set_particle_heff(int part, Utils::Vector3d const &heff) {
   mpi_update_particle_property<Utils::Vector3d,
     &ParticleProperties::heff>(part, heff);
@@ -644,7 +649,7 @@ void set_particle_llg_model_params(int part, bool use_llg_model, double Homega, 
       ParticleProperties::LLGModelParameters,
       &ParticleProperties::llg_model_params>(part, llg_model_params);
 }
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #ifdef ELECTROSTATICS
 void set_particle_q(int part, double q) {

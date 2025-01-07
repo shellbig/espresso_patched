@@ -44,9 +44,10 @@
 #define MMM1D_GPU
 #endif
 #define DIPOLES
-#define DIPSUS
-#define EGG_MODEL
-#define LLG_MODEL
+#define MAGNETODYNAMICS_TSW_MODEL
+#define MAGNETODYNAMICS_EGG_MODEL
+#define DIPOLE_FIELD_TRACKING
+#define MAGNETODYNAMICS_LLG_MODEL
 
 // Active matter
 #define ENGINE

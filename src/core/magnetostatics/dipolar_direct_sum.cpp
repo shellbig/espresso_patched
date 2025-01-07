@@ -373,9 +373,9 @@ void DipolarDirectSum::add_long_range_forces(
     (*p)->force() += prefactor * fi.f;
     (*p)->torque() += prefactor * fi.torque;
   }
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
   DipolarDirectSum::dipole_field_at_part(particles);
-#endif // DIPSUS
+#endif // DIPOLE_FIELD_TRACKING
 }
 
 /**

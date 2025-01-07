@@ -153,9 +153,12 @@ struct ParticleProperties {
   double dipm = 0.;
 #endif
 
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
   /** value of total dipole field at part */
   Utils::Vector3d dip_fld = {0., 0., 0.};
+#endif // DIPOLE_FIELD_TRACKING
+
+#ifdef MAGNETODYNAMICS_TSW_MODEL
   /** boolean flags used to tell SW solver which particle is real and carries
    * the director of the SW particle (sw_real) and which particles carries the
    * dipole moment (sw_virt) */
@@ -178,7 +181,7 @@ struct ParticleProperties {
   /** units parameter for the kinetic MC step */
   double dt_incr = 0.;
 
-#endif
+#endif // MAGNETODYNAMICS_TSW_MODEL
 
 #ifdef VIRTUAL_SITES_RELATIVE
   /** The following properties define, with respect to which real particle a
@@ -205,7 +208,7 @@ struct ParticleProperties {
   } vs_relative;
 #endif // VIRTUAL_SITES_RELATIVE
 
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
   /** The following properties define, with respect to which real particle a
    *  virtual site is placed and at what distance. The relative orientation of
    *  the vector pointing from real particle to virtual site with respect to the
@@ -241,9 +244,9 @@ struct ParticleProperties {
     }
   } egg_model_params;
 
-#endif // EGG_MODEL
+#endif // MAGNETODYNAMICS_EGG_MODEL
 
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
   /** Quaternion of the dipole moment */
   Utils::Quaternion<double> dip_quat = Utils::Quaternion<double>::identity();
   /** effective field */
@@ -278,7 +281,7 @@ struct ParticleProperties {
       ar & magdt;
     }
   } llg_model_params;
-#endif // LLG_MODEL
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #ifdef THERMOSTAT_PER_PARTICLE
 /** Friction coefficient for translation */
@@ -341,8 +344,11 @@ struct ParticleProperties {
 #ifdef DIPOLES
     ar & dipm;
 #endif
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
     ar & dip_fld;
+#endif // DIPOLE_FIELD_TRACKING
+#ifdef MAGNETODYNAMICS_TSW_MODEL
+
     ar & sw_real;
     ar & sw_virt;
     ar & phi0;
@@ -354,22 +360,22 @@ struct ParticleProperties {
 
     ar & dt_incr;
 
-#endif
-#ifdef LLG_MODEL
+#endif // MAGNETODYNAMICS_TSW_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
     ar & heff;
     ar & htherm;
     ar & dip_omega;
     ar & llg_model_params;
-#endif
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #ifdef VIRTUAL_SITES
     ar & is_virtual;
 #ifdef VIRTUAL_SITES_RELATIVE
     ar & vs_relative;
 #endif
 
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
     ar & egg_model_params;
-#endif
+#endif // MAGNETODYNAMICS_EGG_MODEL
 #endif // VIRTUAL_SITES
 
 #ifdef THERMOSTAT_PER_PARTICLE
@@ -671,9 +677,11 @@ public:
   auto calc_dip() const { return calc_director() * dipm(); }
 #endif // LLG_MODEL
 #endif // DIPOLES
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
   auto const &dip_fld() const { return p.dip_fld; }
   auto &dip_fld() { return p.dip_fld; }
+#endif // DIPOLE_FIELD_TRACKING
+#ifdef MAGNETODYNAMICS_TSW_MODEL
   bool sw_real() const { return p.sw_real; }
   bool sw_virt() const { return p.sw_virt; }
   auto const &phi0() const { return p.phi0; }
@@ -690,7 +698,7 @@ public:
   auto &tau_trans_inv() { return p.tau_trans_inv; };
   auto const &dt_incr() const { return p.dt_incr; }
   auto &dt_incr() { return p.dt_incr; }
-#endif //DIPSUS
+#endif // MAGNETODYNAMICS_TSW_MODEL
 #ifdef ROTATIONAL_INERTIA
   auto const &rinertia() const { return p.rinertia; }
   auto &rinertia() { return p.rinertia; }
@@ -715,7 +723,7 @@ public:
   auto const &vs_relative() const { return p.vs_relative; }
   auto &vs_relative() { return p.vs_relative; }
 #endif // VIRTUAL_SITES_RELATIVE
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
   auto use_egg_model() const { return p.egg_model_params.use_egg_model; }
   auto calc_axis() const {
     return Utils::convert_quaternion_to_director(
@@ -733,7 +741,7 @@ public:
   auto &aniso_energy() { return p.egg_model_params.aniso_energy; }
   auto const &egg_gamma() const { return p.egg_model_params.egg_gamma; }
   auto &egg_gamma() { return p.egg_model_params.egg_gamma; }
-#endif // EGG_MODEL
+#endif // MAGNETODYNAMICS_EGG_MODEL
 #else
   constexpr auto is_virtual() const { return p.is_virtual; }
 #endif
@@ -823,14 +831,14 @@ BOOST_CLASS_IMPLEMENTATION(ParticleRattle, object_serializable)
 BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::vs_relative),
                            object_serializable)
 #endif
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
 BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::egg_model_params),
                            object_serializable)
-#endif
-#ifdef LLG_MODEL
+#endif // MAGNETODYNAMICS_EGG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::llg_model_params),
                            object_serializable)
-#endif
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 BOOST_IS_BITWISE_SERIALIZABLE(ParticleParametersSwimming)
 BOOST_IS_BITWISE_SERIALIZABLE(ParticleProperties)
@@ -844,10 +852,10 @@ BOOST_IS_BITWISE_SERIALIZABLE(ParticleRattle)
 #ifdef VIRTUAL_SITES_RELATIVE
 BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::vs_relative))
 #endif
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
 BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::egg_model_params))
 #endif
-#ifdef LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
 BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::llg_model_params))
 #endif
 
