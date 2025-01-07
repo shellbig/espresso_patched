@@ -1,0 +1,93 @@
+#ifndef LLG_MODEL_INLINE_HPP
+#define LLG_MODEL_INLINE_HPP
+
+#include "config/config.hpp"
+
+#ifdef LLG_MODEL
+
+#include "Particle.hpp"
+#include "random.hpp"
+#include "rotation.hpp"
+#include "thermostat.hpp"
+
+#include <utils/Vector.hpp>
+
+#include <cmath>
+#include <iostream>
+
+// all calculations are performed in the space-fixed/lab frame
+inline Utils::Vector3d llg(double sim_time, Utils::Vector3d dip, Particle &p) {
+  // calculating the change in magnetic momentum
+  // via the Landau-Lifshitz-Gilbert equation
+  auto const Galpha   = p.llg_model_params().Galpha;  // Gilbert damping
+  auto const easy_axis= p.calc_director();
+
+  // calculate the anisotropy field to later add to the effective field
+  Utils::Vector3d const hani = p.llg_model_params().Hani * (dip*easy_axis) * easy_axis;
+  
+  p.dip_omega() = p.llg_model_params().gyromag / (1. + Galpha*Galpha) *
+    (p.heff() + hani + Galpha * vector_product(dip, p.heff() + hani));
+
+  return vector_product(p.dip_omega(),dip);
+}
+
+inline void propagate_dip_quat_particle(Particle &p,double time_step) {
+  // updating the direction of the dipole moment
+  p.dip_quat() = Utils::convert_director_to_quaternion(p.calc_dip().normalize()
+    + llg(get_sim_time(), p.calc_dip().normalize(), p)*time_step);
+  p.dip_quat().normalize();
+}
+
+inline void propagate_dip_quat_particle_multi_step(Particle &p,double time_step) {
+  double sim_time = get_sim_time();
+  auto magdt  = p.llg_model_params().magdt;   // magnetic time step
+  Utils::Vector3d dip = p.calc_dip().normalized();
+  Utils::Vector3d const easy_axis= p.calc_director();
+  
+  // perform multiple steps for the magnetic problem
+  // during one step of the mechanical problem
+  double remaining_time = time_step;
+  do {
+    if (magdt < remaining_time) {
+      remaining_time -= magdt;
+    } else {
+      magdt = remaining_time;
+      remaining_time = 0.0;
+    }
+    // updating the direction of the dipol moment
+    // Heun's method
+    auto const dm_intermediate = llg(sim_time, dip, p);
+    auto const dip_intermediate = dip + magdt*dm_intermediate;
+    auto const dm_final = (dm_intermediate + llg(sim_time, dip_intermediate, p))/2;
+    dip += dm_final*magdt;
+    dip.normalize();
+  } while (remaining_time > 0.0);
+  //std::cout << dip << std::endl;
+  auto const hani = p.llg_model_params().Hani * (dip*easy_axis) * easy_axis;
+  p.heff() += hani;
+  // anisotropy_energy = dip * hani;
+  p.dip_quat() = Utils::convert_director_to_quaternion(dip);
+  p.dip_quat().normalize();
+}
+
+inline void apply_magnetic_torque(Particle &p, double time_step) {
+  double sim_time = get_sim_time();
+  Utils::Vector3d const dip = p.calc_dip().normalized();
+  auto const Homega   = p.llg_model_params().Homega;  // field frequency
+  auto const gyromag  = p.llg_model_params().gyromag; // gyromagnetic ratio
+  Utils::Vector3d hext= p.llg_model_params().Hext;    // external B-field
+
+  // setting the alternating current of the external field
+  if (Homega != 0.0) {
+    hext[0] *= sin(Homega * sim_time);
+  }
+  // summing the field components that are constant during one mechanical step
+  // dipole-dipole-interaction field, thermal field, external field, Barnett field
+  p.heff() = p.dip_fld() + p.htherm() + hext
+    - vector_product(dip,convert_vector_body_to_space(p, p.omega()))
+    * p.llg_model_params().Galpha/gyromag;
+  // Einstein-de-Haas effect
+  p.torque() += 1./gyromag * llg(sim_time, dip, p) * p.dipm();
+}
+#endif // LLG_MODEL
+#endif // LLG_MODEL_INLINE_HPP
