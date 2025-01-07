@@ -76,6 +76,7 @@
 #define COLLISION_DETECTION
 
 #define EGG_MODEL
+#define LLG_MODEL
 
 
 #define ADDITIONAL_CHECKS

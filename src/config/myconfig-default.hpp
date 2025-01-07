@@ -46,6 +46,7 @@
 #define DIPOLES
 #define DIPSUS
 #define EGG_MODEL
+#define LLG_MODEL
 
 // Active matter
 #define ENGINE
@@ -83,5 +84,3 @@
 #define VIRTUAL_SITES_RELATIVE
 #define VIRTUAL_SITES_INERTIALESS_TRACERS
 #define COLLISION_DETECTION
-
-#define EGG_MODEL
