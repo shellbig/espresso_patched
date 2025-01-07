@@ -38,7 +38,7 @@ def AssertThermostatType(*allowedthermostats):
 
         cdef class Thermostat:
             @AssertThermostatType(THERMO_LANGEVIN, THERMO_DPD)
-            def set_langevin(self, kT=None, gamma=None, gamma_rotation=None,
+            def set_langevin(self, kT=None, gamma=None, gamma_rotation=None, gamma_magnet=None,
                      act_on_virtual=False, seed=None):
                 ...
 
@@ -111,6 +111,7 @@ cdef class Thermostat:
             if thmst["type"] == "LANGEVIN":
                 self.set_langevin(kT=thmst["kT"], gamma=thmst["gamma"],
                                   gamma_rotation=thmst["gamma_rotation"],
+                                  gamma_magnet=thmst["gamma_magnet"],
                                   act_on_virtual=thmst["act_on_virtual"],
                                   seed=thmst["seed"])
                 langevin_set_rng_counter(thmst["counter"])
@@ -172,6 +173,15 @@ cdef class Thermostat:
                     lang_dict["gamma_rotation"] = langevin.gamma_rotation
             ELSE:
                 lang_dict["gamma_rotation"] = None
+            IF LLG_MODEL:
+                IF PARTICLE_ANISOTROPY:
+                    lang_dict["gamma_magnet"] = [langevin.gamma_magnet[0],
+                                                 langevin.gamma_magnet[1],
+                                                 langevin.gamma_magnet[2]]
+                ELSE:
+                    lang_dict["gamma_magnet"] = langevin.gamma_magnet
+            ELSE:
+                lang_dict["gamma_magnet"] = None
 
             thermo_list.append(lang_dict)
         if thermo_switch & THERMO_BROWNIAN:
@@ -248,19 +258,23 @@ cdef class Thermostat:
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(utils.make_Vector3d((0., 0., 0.)))
                 mpi_set_brownian_gamma_rot(utils.make_Vector3d((0., 0., 0.)))
+            IF LLG_MODEL:
+                mpi_set_langevin_gamma_mag(utils.make_Vector3d((0., 0., 0.)))
         ELSE:
             mpi_set_langevin_gamma(0.)
             mpi_set_brownian_gamma(0.)
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(0.)
                 mpi_set_brownian_gamma_rot(0.)
+            IF LLG_MODEL:
+                mpi_set_langevin_gamma_mag(0.)
 
         mpi_set_thermo_switch(THERMO_OFF)
         lb_lbcoupling_set_gamma(0.0)
 
     @AssertThermostatType(THERMO_LANGEVIN, THERMO_DPD)
     def set_langevin(self, kT, gamma, gamma_rotation=None,
-                     act_on_virtual=False, seed=None):
+                     gamma_magnet=None, act_on_virtual=False, seed=None):
         """
         Sets the Langevin thermostat.
 
@@ -277,6 +291,10 @@ cdef class Thermostat:
             The same applies to ``gamma_rotation``, which requires the feature
             ``ROTATION`` to work properly. But also accepts three floats
             if ``PARTICLE_ANISOTROPY`` is also compiled in.
+        gamma_magnet : :obj:`float`, optional
+            The same applies to ``gamma_magnet``, which requires the feature
+            ``LLG_MODEL`` to work properly. But also accepts three floats
+            if ``PARTICLE_ANISOTROPY`` is also compiled in.
         act_on_virtual : :obj:`bool`, optional
             If ``True`` the thermostat will act on virtual sites, default is
             ``False``.
@@ -289,6 +307,7 @@ cdef class Thermostat:
 
         scalar_gamma_def = True
         scalar_gamma_rot_def = True
+        scalar_gamma_mag_def = True
         IF PARTICLE_ANISOTROPY:
             if hasattr(gamma, "__iter__"):
                 scalar_gamma_def = False
@@ -300,6 +319,12 @@ cdef class Thermostat:
                 scalar_gamma_rot_def = False
             else:
                 scalar_gamma_rot_def = True
+        
+        IF PARTICLE_ANISOTROPY:
+            if hasattr(gamma_magnet, "__iter__"):
+                scalar_gamma_mag_def = False
+            else:
+                scalar_gamma_mag_def = True
 
         utils.check_type_or_throw_except(kT, 1, float, "kT must be a number")
         if scalar_gamma_def:
@@ -315,6 +340,13 @@ cdef class Thermostat:
             else:
                 utils.check_type_or_throw_except(
                     gamma_rotation, 3, float, "diagonal elements of the gamma_rotation tensor must be numbers")
+        if gamma_magnet is not None:
+            if scalar_gamma_mag_def:
+                utils.check_type_or_throw_except(
+                    gamma_magnet, 1, float, "gamma_magnet must be a number")
+            else:
+                utils.check_type_or_throw_except(
+                    gamma_magnet, 3, float, "diagonal elements of the gamma_magnet tensor must be numbers")
 
         if scalar_gamma_def:
             if float(kT) < 0. or float(gamma) < 0.:
@@ -335,6 +367,16 @@ cdef class Thermostat:
                         gamma_rotation[1]) < 0. or float(gamma_rotation[2]) < 0.:
                     raise ValueError(
                         "diagonal elements of the gamma_rotation tensor must be positive numbers")
+        if gamma_magnet is not None:
+            if scalar_gamma_mag_def:
+                if float(gamma_magnet) < 0.:
+                    raise ValueError(
+                        "gamma_magnet must be positive number")
+            else:
+                if float(gamma_magnet[0]) < 0. or float(
+                        gamma_magnet[1]) < 0. or float(gamma_magnet[2]) < 0.:
+                    raise ValueError(
+                        "diagonal elements of the gamma_magnet tensor must be positive numbers")
 
         # Seed is required if the RNG is not initialized
         if seed is None and langevin.is_seed_required():
@@ -372,6 +414,22 @@ cdef class Thermostat:
                 if gamma_rotation is None:
                     # rotational gamma is translational gamma
                     gamma_rotation = gamma
+        IF LLG_MODEL:
+            IF PARTICLE_ANISOTROPY:
+                cdef utils.Vector3d gamma_mag_vec
+                if gamma_magnet is None:
+                    # magnetic gamma is translational gamma
+                    gamma_mag_vec = gamma_vec
+                else:
+                    if scalar_gamma_mag_def:
+                        for i in range(3):
+                            gamma_mag_vec[i] = gamma_magnet
+                    else:
+                        gamma_mag_vec = utils.make_Vector3d(gamma_magnet)
+            ELSE:
+                if gamma_magnet is None:
+                    # magnetic gamma is translational gamma
+                    gamma_magnet = gamma
 
         global thermo_switch
         mpi_set_thermo_switch(thermo_switch | THERMO_LANGEVIN)
@@ -379,10 +437,14 @@ cdef class Thermostat:
             mpi_set_langevin_gamma(gamma_vec)
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(gamma_rot_vec)
+            IF LLG_MODEL:
+                mpi_set_langevin_gamma_mag(gamma_mag_vec)
         ELSE:
             mpi_set_langevin_gamma(gamma)
             IF ROTATION:
                 mpi_set_langevin_gamma_rot(gamma_rotation)
+            IF LLG_MODEL:
+                mpi_set_langevin_gamma_mag(gamma_magnet)
 
         mpi_set_thermo_virtual(act_on_virtual)
 

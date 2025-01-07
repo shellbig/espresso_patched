@@ -351,6 +351,13 @@ ParticleHandle::ParticleHandle() {
        },
        [this]() { return particle().gamma_rot(); }},
 #endif // ROTATION
+#ifdef LLG_MODEL
+      {"gamma_mag",
+       [this](Variant const &value) {
+         set_particle_gamma_mag(m_pid, get_gamma_safe(value));
+       },
+       [this]() { return particle().gamma_mag(); }},
+#endif // LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
       {"pos_folded", AutoParameter::read_only,
        [this]() { return folded_position(particle().pos(), ::box_geo); }},

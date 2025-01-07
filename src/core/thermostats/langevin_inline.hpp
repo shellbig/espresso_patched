@@ -128,4 +128,35 @@ friction_thermo_langevin_rotation(LangevinThermostat const &langevin,
 }
 
 #endif // ROTATION
+
+#ifdef LLG_MODEL
+/** Langevin thermostat for thermal field in magnetization dynamics.
+ *  @param[in]     langevin       Parameters
+ *  @param[in]     p              Particle
+ *  @param[in]     time_step      Time step
+ *  @param[in]     kT             Thermal energy
+ */
+inline Utils::Vector3d
+mag_field_thermo_langevin(LangevinThermostat const &langevin,
+                                  Particle const &p, double time_step,
+                                  double kT) {
+  auto pref_friction = -langevin.gamma_magnet;
+  auto pref_noise = langevin.pref_noise_magnet;
+
+#ifdef THERMOSTAT_PER_PARTICLE
+  // override default if particle-specific gamma
+  if (p.gamma_mag() >= Thermostat::GammaType{}) {
+    auto const gamma = p.gamma_mag() >= Thermostat::GammaType{}
+                           ? p.gamma_mag()
+                           : langevin.gamma_magnet;
+    pref_friction = -gamma;
+    pref_noise = LangevinThermostat::sigma(kT, time_step, gamma);
+  }
+#endif // THERMOSTAT_PER_PARTICLE
+
+  auto const noise = Random::noise_gaussian<RNGSalt::LANGEVIN_MAG>(
+      langevin.rng_counter(), langevin.rng_seed(), p.id());
+  return hadamard_product(pref_noise, noise);
+}
+#endif // LLG_MODEL
 #endif

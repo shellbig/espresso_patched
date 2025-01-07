@@ -221,11 +221,18 @@ void set_particle_gamma(int part, Utils::Vector3d const &gamma);
 #endif
 #ifdef ROTATION
 #ifndef PARTICLE_ANISOTROPY
-void set_particle_gamma_rot(int part, double gamma);
+void set_particle_gamma_rot(int part, double gamma_rot);
 #else
 void set_particle_gamma_rot(int part, Utils::Vector3d const &gamma_rot);
-#endif
-#endif
+#endif // PARTICLE_ANISOTROPY
+#endif //ROTATION
+#ifdef LLG_MODEL
+#ifndef PARTICLE_ANISOTROPY
+void set_particle_gamma_mag(int part, double gamma_mag);
+#else
+void set_particle_gamma_mag(int part, const Utils::Vector3d &gamma_mag);
+#endif // PARTICLE_ANISOTROPY
+#endif // LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES

@@ -164,10 +164,16 @@ void mpi_set_langevin_gamma_rot_local(GammaType const &gamma) {
   on_thermostat_param_change();
 }
 
+void mpi_set_langevin_gamma_mag_local(GammaType const &gamma) {
+  langevin.gamma_magnet = gamma;
+  on_thermostat_param_change();
+}
+
 REGISTER_CALLBACK(mpi_set_brownian_gamma_local)
 REGISTER_CALLBACK(mpi_set_brownian_gamma_rot_local)
 REGISTER_CALLBACK(mpi_set_langevin_gamma_local)
 REGISTER_CALLBACK(mpi_set_langevin_gamma_rot_local)
+REGISTER_CALLBACK(mpi_set_langevin_gamma_mag_local)
 
 void mpi_set_brownian_gamma(GammaType const &gamma) {
   mpi_call_all(mpi_set_brownian_gamma_local, gamma);
@@ -182,6 +188,10 @@ void mpi_set_langevin_gamma(GammaType const &gamma) {
 }
 void mpi_set_langevin_gamma_rot(GammaType const &gamma) {
   mpi_call_all(mpi_set_langevin_gamma_rot_local, gamma);
+}
+
+void mpi_set_langevin_gamma_mag(GammaType const &gamma) {
+  mpi_call_all(mpi_set_langevin_gamma_mag_local, gamma);
 }
 
 void mpi_set_thermo_virtual_local(bool thermo_virtual) {

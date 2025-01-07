@@ -258,6 +258,14 @@ struct ParticleProperties {
   Utils::Vector3d gamma_rot = {-1., -1., -1.};
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
+#ifdef LLG_MODEL
+/** Friction coefficient for LLG_model */
+#ifndef PARTICLE_ANISOTROPY
+  double gamma_mag = -1.;
+#else
+  Utils::Vector3d gamma_mag = {-1., -1., -1.};
+#endif // PARTICLE_ANISOTROPY
+#endif // LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES
@@ -325,6 +333,9 @@ struct ParticleProperties {
     ar & gamma;
 #ifdef ROTATION
     ar & gamma_rot;
+#endif
+#ifdef LLG_MODEL
+    ar & gamma_mag;
 #endif
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
@@ -661,6 +672,10 @@ public:
   auto const &gamma_rot() const { return p.gamma_rot; }
   auto &gamma_rot() { return p.gamma_rot; }
 #endif // ROTATION
+#ifdef LLG_MODEL
+  auto const &gamma_mag() const { return p.gamma_mag; }
+  auto &gamma_mag() { return p.gamma_mag; }
+#endif // LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
   auto &fixed() { return p.ext_flag; }

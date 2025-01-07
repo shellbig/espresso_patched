@@ -152,7 +152,10 @@ serialize_and_reduce(Archive &ar, Particle &p, unsigned int data_parts,
 #ifdef ROTATION
     ar & p.gamma_rot();
 #endif
+#ifdef LLG_MODEL
+    ar & p.gamma_mag();
 #endif
+#endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
     ar & p.fixed();
     ar & p.ext_force();

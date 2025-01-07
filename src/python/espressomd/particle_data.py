@@ -292,6 +292,16 @@ class ParticleHandle(ScriptInterfaceHelper):
         .. note::
             This needs features ``THERMOSTAT_PER_PARTICLE``, ``ROTATION`` and
             optionally ``PARTICLE_ANISOTROPY``.
+    
+    gamma_mag: :obj:`float` or (3,) array_like of :obj:`float`
+        The particle magnetic frictional coefficient used in
+        the Langevin thermostat.
+
+        gamma_mag : :obj:`float` or (3,) array_like of :obj:`float`
+
+        .. note::
+            This needs features ``THERMOSTAT_PER_PARTICLE``,
+            ``LLG_MODEL`` and optionally ``PARTICLE_ANISOTROPY``.
 
     rotation: (3,) array_like of :obj:`bool`
         Switches the particle's rotational degrees of freedom in the
