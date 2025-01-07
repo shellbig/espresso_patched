@@ -243,6 +243,43 @@ struct ParticleProperties {
 
 #endif // EGG_MODEL
 
+#ifdef LLG_MODEL
+  /** Quaternion of the dipole moment */
+  Utils::Quaternion<double> dip_quat = Utils::Quaternion<double>::identity();
+  /** effective field */
+  Utils::Vector3d heff = {0., 0., 0.};
+  /** stochastic thermal field */
+  Utils::Vector3d htherm = {0., 0., 0.};
+  /** angular velocity of the dipole moment */
+  Utils::Vector3d dip_omega = {0., 0., 0.};
+
+  struct LLGModelParameters {
+    bool use_llg_model = false;
+    /** the field frequency 2*pi*f */
+    double Homega = 0.;
+    /** the external field as in the constraint */
+    Utils::Vector3d Hext = {0.,0.,0.};
+    /** the maximum anisotropy field amplitude */
+    double Hani = 0.;
+    /** Gilbert damping parameter for Landau-Lifshitz-Gilbert equation */
+    double Galpha = 0.1;
+    /** the gyromagnetic ratio */
+    double gyromag = 100;
+    /** the time step for the internal magnetic problem */
+    double magdt = 1;
+    
+    template <class Archive> void serialize(Archive &ar, long int) {
+      ar & use_llg_model;
+      ar & Homega;
+      ar & Hext;
+      ar & Hani;
+      ar & Galpha;
+      ar & gyromag;
+      ar & magdt;
+    }
+  } llg_model_params;
+#endif // LLG_MODEL
+
 #ifdef THERMOSTAT_PER_PARTICLE
 /** Friction coefficient for translation */
 #ifndef PARTICLE_ANISOTROPY
@@ -317,6 +354,12 @@ struct ParticleProperties {
 
     ar & dt_incr;
 
+#endif
+#ifdef LLG_MODEL
+    ar & heff;
+    ar & htherm;
+    ar & dip_omega;
+    ar & llg_model_params;
 #endif
 #ifdef VIRTUAL_SITES
     ar & is_virtual;
@@ -597,8 +640,37 @@ public:
 #ifdef DIPOLES
   auto const &dipm() const { return p.dipm; }
   auto &dipm() { return p.dipm; }
+#ifdef LLG_MODEL
+  auto const &dip_quat() const { return p.dip_quat; }
+  auto &dip_quat() { return p.dip_quat; }
+  auto const &heff() const { return p.heff; }
+  auto &heff() { return p.heff; }
+  auto const &htherm() const { return p.htherm; }
+  auto &htherm() { return p.htherm; }
+  auto const &dip_omega() const { return p.dip_omega; }
+  auto &dip_omega() { return p.dip_omega; }
+  auto use_llg_model() const { return p.llg_model_params.use_llg_model; }
+  auto const &Homega() const { return p.llg_model_params.Homega; }
+  auto &Homega() { return p.llg_model_params.Homega; }
+  auto const &Hext() const { return p.llg_model_params.Hext; }
+  auto &Hext() { return p.llg_model_params.Hext; }
+  auto const &Hani() const { return p.llg_model_params.Hani; }
+  auto &Hani() { return p.llg_model_params.Hani; }
+  auto const &Galpha() const { return p.llg_model_params.Galpha; }
+  auto &Galpha() { return p.llg_model_params.Galpha; }
+  auto const &gyromag() const { return p.llg_model_params.gyromag; }
+  auto &gyromag() { return p.llg_model_params.gyromag; }
+  auto const &magdt() const { return p.llg_model_params.magdt; }
+  auto &magdt() { return p.llg_model_params.magdt; }
+  auto const &llg_model_params() const { return p.llg_model_params; }
+  auto &llg_model_params() { return p.llg_model_params; }
+  auto calc_dip() const {
+    return Utils::convert_quaternion_to_director(p.dip_quat) * dipm();
+  }
+#else
   auto calc_dip() const { return calc_director() * dipm(); }
-#endif
+#endif // LLG_MODEL
+#endif // DIPOLES
 #ifdef DIPSUS
   auto const &dip_fld() const { return p.dip_fld; }
   auto &dip_fld() { return p.dip_fld; }
@@ -618,7 +690,7 @@ public:
   auto &tau_trans_inv() { return p.tau_trans_inv; };
   auto const &dt_incr() const { return p.dt_incr; }
   auto &dt_incr() { return p.dt_incr; }
-#endif
+#endif //DIPSUS
 #ifdef ROTATIONAL_INERTIA
   auto const &rinertia() const { return p.rinertia; }
   auto &rinertia() { return p.rinertia; }
@@ -755,6 +827,10 @@ BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::vs_relative),
 BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::egg_model_params),
                            object_serializable)
 #endif
+#ifdef LLG_MODEL
+BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::llg_model_params),
+                           object_serializable)
+#endif
 
 BOOST_IS_BITWISE_SERIALIZABLE(ParticleParametersSwimming)
 BOOST_IS_BITWISE_SERIALIZABLE(ParticleProperties)
@@ -770,6 +846,9 @@ BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::vs_relative))
 #endif
 #ifdef EGG_MODEL
 BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::egg_model_params))
+#endif
+#ifdef LLG_MODEL
+BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::llg_model_params))
 #endif
 
 #endif

@@ -124,6 +124,14 @@ void set_particle_type(int p_id, int type);
  */
 void set_particle_mol_id(int part, int mid);
 
+#ifdef LLG_MODEL
+/** Call only on the head node: set particle's dipole orientation using quaternions.
+ *  @param part the particle.
+ *  @param dip_quat its new value for quaternions of the dipole moment.
+ */
+void set_particle_dip_quat(int part, Utils::Quaternion<double> const &dip_quat);
+#endif // LLG_MODEL
+
 #ifdef ROTATION
 /** Call only on the head node: set particle orientation using quaternions.
  *  @param part the particle.
@@ -208,6 +216,44 @@ void set_particle_axis_quat_body(int part,
                                  Utils::Quaternion<double> const &axis_quat);
 
 #endif // EGG_MODEL
+
+#ifdef LLG_MODEL
+/** Call only on the head node: set particle effective field.
+ *  @param part the particle.
+ *  @param heff its effective field (consisting of the stray field of other particles, 
+ *  the external field and the anisotropy field of the particle)
+ */
+void set_particle_heff(int part, Utils::Vector3d const &heff);
+
+/** Call only on the head node: set particle thermal field.
+ *  @param part the particle.
+ *  @param htherm its stochastic thermal field
+ */
+void set_particle_htherm(int part, Utils::Vector3d const &htherm);
+
+/** Call only on the head node: set dipolar angular velocity of the particle.
+ *  @param part the particle.
+ *  @param dip_omega, the angular velocity of its dipolar moment
+ */
+void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega);
+
+/** Call only on the head node: set parameters for the LLG model.
+ *  @param part the particle.
+ *  @param use_llg_model a flag to activate the llg_model.
+ *  @param Homega the frequency of the external field.
+ *  @param Hext the maximum vector of the external field.
+ *  @param Hani the particle's maximum anisotropy field.
+ *  @param Galpha the Gilbert damping parameter.
+ *  @param gyromag the gyromagnetic ratio.
+ *  @param magdt the time step for the magnetic integration.
+ */
+//void set_particle_external_field_axis(int part,
+//                                 Utils::Vector3d const &Hext);
+void set_particle_llg_model_params(int part, bool use_llg_model,
+                                   double Homega, Utils::Vector3d Hext, double Hani, double Galpha,
+                                   double gyromag, double magdt);
+
+#endif // LLG_MODEL
 
 #ifdef THERMOSTAT_PER_PARTICLE
 /** Call only on the head node: set particle frictional coefficient.
@@ -348,5 +394,32 @@ inline Utils::Vector3d get_particle_axis(Particle const *p) {
 }
 
 #endif // EGG_MODEL
+
+#ifdef LLG_MODEL
+
+/*
+inline Utils::Vector3d Hext
+get_particle_external_field_axis(Particle const *p) {
+  return p->llg_model_params().external_field_axis;
+}
+*/
+
+inline void get_particle_llg_model_params(Particle const *p, int &use_llg_model,
+                                          double &Homega,
+                                          Utils::Vector3d Hext,
+                                          double &Hani,
+                                          double &Galpha,
+                                          double &gyromag,
+                                          double &magdt) {
+  use_llg_model = p->llg_model_params().use_llg_model;
+  Homega = p->llg_model_params().Homega;
+  Hext = p->llg_model_params().Hext;
+  Hani = p->llg_model_params().Hani;
+  Galpha = p->llg_model_params().Galpha;
+  gyromag = p->llg_model_params().gyromag;
+  magdt = p->llg_model_params().magdt;
+}
+
+#endif // LLG_MODEL
 
 #endif

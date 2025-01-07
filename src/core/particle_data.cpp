@@ -134,6 +134,15 @@ using UpdatePropertyMessage = boost::variant
         , UpdateProperty<ParticleProperties::EggModelParameters,
                          &Prop::egg_model_params>
 #endif
+#endif // VIRTUAL_SITES
+
+#ifdef LLG_MODEL
+        , UpdateProperty<Utils::Quaternion<double>, &Prop::dip_quat>
+        , UpdateProperty<Utils::Vector3d, &Prop::heff>
+        , UpdateProperty<Utils::Vector3d, &Prop::htherm>
+        , UpdateProperty<Utils::Vector3d, &Prop::dip_omega>
+        , UpdateProperty<ParticleProperties::LLGModelParameters,
+                         &Prop::llg_model_params>
 #endif
 #ifdef THERMOSTAT_PER_PARTICLE
 #ifndef PARTICLE_ANISOTROPY
@@ -488,11 +497,22 @@ void set_particle_dipm(int part, double dipm) {
   mpi_update_particle_property<double, &ParticleProperties::dipm>(part, dipm);
 }
 
+#ifdef LLG_MODEL
+void set_particle_dip(int part, Utils::Vector3d const &dip) {
+  Utils::Quaternion<double> quat;
+  double dipm;
+  std::tie(quat, dipm) = convert_dip_to_quat(dip);
+
+  set_particle_dipm(part, dipm);
+  set_particle_dip_quat(part, quat);
+}
+#else
 void set_particle_dip(int part, Utils::Vector3d const &dip) {
   auto const [quat, dipm] = convert_dip_to_quat(dip);
   set_particle_dipm(part, dipm);
   set_particle_quat(part, quat);
 }
+#endif // LLG_MODEL
 #endif
 
 #ifdef DIPSUS
@@ -595,6 +615,37 @@ void set_particle_egg_model_params(int part, bool use_egg_model,
 }
 #endif // EGG_MODEL
 
+#ifdef LLG_MODEL
+void set_particle_heff(int part, Utils::Vector3d const &heff) {
+  mpi_update_particle_property<Utils::Vector3d,
+    &ParticleProperties::heff>(part, heff);
+}
+void set_particle_htherm(int part, Utils::Vector3d const &htherm) {
+  mpi_update_particle_property<Utils::Vector3d,
+    &ParticleProperties::htherm>(part, htherm);
+}
+void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega) {
+  mpi_update_particle_property<Utils::Vector3d,
+    &ParticleProperties::dip_omega>(part, dip_omega);
+}
+void set_particle_llg_model_params(int part, bool use_llg_model, double Homega, Utils::Vector3d Hext, double Hani, double Galpha, double gyromag, double magdt) {
+
+  auto llg_model_params = get_particle_data(part).llg_model_params();
+  
+  llg_model_params.use_llg_model = use_llg_model;
+  llg_model_params.Homega = Homega;
+  llg_model_params.Hext = Hext;
+  llg_model_params.Hani = Hani;
+  llg_model_params.Galpha = Galpha;
+  llg_model_params.gyromag = gyromag;
+  llg_model_params.magdt = magdt;
+
+  mpi_update_particle_property<
+      ParticleProperties::LLGModelParameters,
+      &ParticleProperties::llg_model_params>(part, llg_model_params);
+}
+#endif // LLG_MODEL
+
 #ifdef ELECTROSTATICS
 void set_particle_q(int part, double q) {
   mpi_update_particle_property<double, &ParticleProperties::q>(part, q);
@@ -619,6 +670,12 @@ void set_particle_type(int p_id, int type) {
 void set_particle_mol_id(int part, int mid) {
   mpi_update_particle_property<int, &ParticleProperties::mol_id>(part, mid);
 }
+
+#ifdef LLG_MODEL
+void set_particle_dip_quat(int part, Utils::Quaternion<double> const &dip_quat) {
+  mpi_update_particle_property<Utils::Quaternion<double>, &ParticleProperties::dip_quat>(part, dip_quat);
+}
+#endif // LLG_MODEL
 
 #ifdef ROTATION
 void set_particle_quat(int part, Utils::Quaternion<double> const &quat) {

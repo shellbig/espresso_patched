@@ -49,6 +49,27 @@ template <> struct traits<Particle> {
     return Utils::Vector3d{};
 #endif
   }
+  auto heff(Particle const &p) const {
+#ifdef LLG_MODEL
+    return p.heff();
+#else
+    return Utils::Vector3d{};
+#endif
+  }
+  auto htherm(Particle const &p) const {
+#ifdef LLG_MODEL
+    return p.htherm();
+#else
+    return Utils::Vector3d{};
+#endif
+  }
+  auto dip_omega(Particle const &p) const {
+#ifdef LLG_MODEL
+    return p.dip_omega();
+#else
+    return Utils::Vector3d{};
+#endif
+  }
   auto velocity_body(Particle const &p) const {
 #ifdef ROTATION
     return convert_vector_space_to_body(p, p.v());
