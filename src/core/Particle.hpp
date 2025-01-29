@@ -247,8 +247,8 @@ struct ParticleProperties {
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-  /** Quaternion of the dipole moment */
-  Utils::Quaternion<double> dip_quat = Utils::Quaternion<double>::identity();
+  /** vector of the dipole moment */
+  Utils::Vector3d dipu = {0., 0., 0.};
   /** effective field */
   Utils::Vector3d heff = {0., 0., 0.};
   /** stochastic thermal field */
@@ -647,8 +647,8 @@ public:
   auto const &dipm() const { return p.dipm; }
   auto &dipm() { return p.dipm; }
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-  auto const &dip_quat() const { return p.dip_quat; }
-  auto &dip_quat() { return p.dip_quat; }
+  auto const &dipu() const { return p.dipu; }
+  auto &dipu() { return p.dipu; }
   auto const &heff() const { return p.heff; }
   auto &heff() { return p.heff; }
   auto const &htherm() const { return p.htherm; }
@@ -670,9 +670,8 @@ public:
   auto &magdt() { return p.llg_model_params.magdt; }
   auto const &llg_model_params() const { return p.llg_model_params; }
   auto &llg_model_params() { return p.llg_model_params; }
-  auto calc_dip() const {
-    return Utils::convert_quaternion_to_director(p.dip_quat) * dipm();
-  }
+  auto calc_dip() const { return dipu() * dipm();  }
+//#endif
 #else
   auto calc_dip() const { return calc_director() * dipm(); }
 #endif // MAGNETODYNAMICS_LLG_MODEL

@@ -31,17 +31,16 @@ inline Utils::Vector3d llg(double sim_time, Utils::Vector3d dip, Particle &p) {
   return vector_product(p.dip_omega(),dip);
 }
 
-inline void propagate_dip_quat_particle(Particle &p,double time_step) {
+inline void propagate_dipu_particle(Particle &p,double time_step) {
   // updating the direction of the dipole moment
-  p.dip_quat() = Utils::convert_director_to_quaternion(p.calc_dip().normalize()
-    + llg(get_sim_time(), p.calc_dip().normalize(), p)*time_step);
-  p.dip_quat().normalize();
+  p.dipu() += llg(get_sim_time(), p.dipu(), p)*time_step;
+  p.dipu().normalize();
 }
 
-inline void propagate_dip_quat_particle_multi_step(Particle &p,double time_step) {
+inline void propagate_dipu_particle_multi_step(Particle &p,double time_step) {
   double sim_time = get_sim_time();
   auto magdt  = p.llg_model_params().magdt;   // magnetic time step
-  Utils::Vector3d dip = p.calc_dip().normalized();
+  Utils::Vector3d dip = p.dipu();
   Utils::Vector3d const easy_axis= p.calc_director();
   
   // perform multiple steps for the magnetic problem
@@ -66,13 +65,12 @@ inline void propagate_dip_quat_particle_multi_step(Particle &p,double time_step)
   auto const hani = p.llg_model_params().Hani * (dip*easy_axis) * easy_axis;
   p.heff() += hani;
   // anisotropy_energy = dip * hani;
-  p.dip_quat() = Utils::convert_director_to_quaternion(dip);
-  p.dip_quat().normalize();
+  p.dipu() = dip;
 }
 
 inline void apply_magnetic_torque(Particle &p, double time_step) {
   double sim_time = get_sim_time();
-  Utils::Vector3d const dip = p.calc_dip().normalized();
+  Utils::Vector3d const dip = p.dipu();
   auto const Homega   = p.llg_model_params().Homega;  // field frequency
   auto const gyromag  = p.llg_model_params().gyromag; // gyromagnetic ratio
   Utils::Vector3d hext= p.llg_model_params().Hext;    // external B-field

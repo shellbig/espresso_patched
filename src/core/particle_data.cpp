@@ -139,7 +139,7 @@ using UpdatePropertyMessage = boost::variant
 #endif // VIRTUAL_SITES
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-        , UpdateProperty<Utils::Quaternion<double>, &Prop::dip_quat>
+        , UpdateProperty<Utils::Vector3d, &Prop::dipu>
         , UpdateProperty<Utils::Vector3d, &Prop::heff>
         , UpdateProperty<Utils::Vector3d, &Prop::htherm>
         , UpdateProperty<Utils::Vector3d, &Prop::dip_omega>
@@ -501,12 +501,9 @@ void set_particle_dipm(int part, double dipm) {
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
 void set_particle_dip(int part, Utils::Vector3d const &dip) {
-  Utils::Quaternion<double> quat;
-  double dipm;
-  std::tie(quat, dipm) = convert_dip_to_quat(dip);
-
-  set_particle_dipm(part, dipm);
-  set_particle_dip_quat(part, quat);
+  set_particle_dipm(part, dip.norm());
+  mpi_update_particle_property<Utils::Vector3d, &ParticleProperties::dipu>(
+      part, dip.normalized());
 }
 #else
 void set_particle_dip(int part, Utils::Vector3d const &dip) {
@@ -675,12 +672,6 @@ void set_particle_type(int p_id, int type) {
 void set_particle_mol_id(int part, int mid) {
   mpi_update_particle_property<int, &ParticleProperties::mol_id>(part, mid);
 }
-
-#ifdef MAGNETODYNAMICS_LLG_MODEL
-void set_particle_dip_quat(int part, Utils::Quaternion<double> const &dip_quat) {
-  mpi_update_particle_property<Utils::Quaternion<double>, &ParticleProperties::dip_quat>(part, dip_quat);
-}
-#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #ifdef ROTATION
 void set_particle_quat(int part, Utils::Quaternion<double> const &quat) {

@@ -124,14 +124,6 @@ void set_particle_type(int p_id, int type);
  */
 void set_particle_mol_id(int part, int mid);
 
-#ifdef MAGNETODYNAMICS_LLG_MODEL
-/** Call only on the head node: set particle's dipole orientation using quaternions.
- *  @param part the particle.
- *  @param dip_quat its new value for quaternions of the dipole moment.
- */
-void set_particle_dip_quat(int part, Utils::Quaternion<double> const &dip_quat);
-#endif // MAGNETODYNAMICS_LLG_MODEL
-
 #ifdef ROTATION
 /** Call only on the head node: set particle orientation using quaternions.
  *  @param part the particle.

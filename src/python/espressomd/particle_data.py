@@ -239,15 +239,6 @@ class ParticleHandle(ScriptInterfaceHelper):
         .. note::
            This needs the feature ``DIPOLES``.
 
-    dip_quat: (4, ) array_like of :obj:`float`
-        Quaternion of the dipole moment.
-
-        This quaternion describes the orientation of the dipole moment in the
-        body fixed frame of the particle.
-
-        .. note::
-            This needs the feature ``DIPOLES``
-
     dipm: :obj:`float`
         The magnitude of the dipole moment.
 
