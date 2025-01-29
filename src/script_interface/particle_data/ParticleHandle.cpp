@@ -682,7 +682,11 @@ void ParticleHandle::do_construct(VariantMap const &params) {
     } else if (has_param("director")) {
       do_set_parameter("director", params.at("director"));
     }
-#ifndef MAGNETODYNAMICS_LLG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    else if (has_param("dip")) {
+      do_set_parameter("director", params.at("dip"));
+    }
+#else
     else if (has_param("dip")) {
       do_set_parameter("dip", params.at("dip"));
     }
