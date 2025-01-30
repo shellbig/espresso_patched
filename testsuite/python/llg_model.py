@@ -67,8 +67,8 @@ class Magnetodynamics(ut.TestCase):
                         [1,0,0],
                         2,
                         0.1,
-                        48.96386187265048,
-                        0.00019561475908100532
+                        47.69599836457976,
+                        0.00013526476494994482
                     ]])
 
         orientor_list = np.random.standard_normal((n_part, 3))
@@ -77,6 +77,7 @@ class Magnetodynamics(ut.TestCase):
         dip_mom = orientor_list_normalized
         self.system.part.all().director = orientor_list_normalized
         self.system.part.all().dip = dip_mom
+        self.system.part.all().gamma_mag = 3*[0.00017298778441412224]
 
     def tearDown(self):
         self.system.part.clear()
@@ -143,7 +144,7 @@ class Magnetodynamics(ut.TestCase):
                 # reduced external field = Hext/Hani
                 h=0.25
             ),
-            atol=.01)
+            atol=1e-5)
         self.tearDown()
     
     @utx.skipIfMissingFeatures(["MAGNETODYNAMICS_LLG_MODEL", "DIPOLES", "EXTERNAL_FORCES"])
@@ -176,12 +177,12 @@ class Magnetodynamics(ut.TestCase):
         self.system.thermostat.set_langevin(
             kT=0.2,
             gamma=1.0,
-            gamma_magnet=0.00017,
+            gamma_magnet=0.00017298778441412224,
             seed=42
         )
 
         self.system.integrator.set_vv()
-        self.system.integrator.run(steps=1000)
+        self.system.integrator.run(steps=2000)
         time_series = acc.time_series()
 
         n_part = 1024
@@ -189,7 +190,7 @@ class Magnetodynamics(ut.TestCase):
         xsi = 5
         sigma = 5
         np.testing.assert_allclose(avg_mx, gen_ani_integral()(xsi,sigma),
-            atol=.05)
+            atol=2e-3)
         self.tearDown()
 
 
