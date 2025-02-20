@@ -220,13 +220,13 @@ struct DipolarP3M {
     auto const mixr = vector_product(dip1, d);
     // Calculate furier space contribtuon to the dipole field.
 
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
     Particle &p1_nonconst = const_cast<Particle &>(p1);
     Particle &p2_nonconst = const_cast<Particle &>(p2);
     // prefactor * (mimj * B_r - mir * mjr * C_r);
     p1_nonconst.dip_fld() += prefactor * (-dip2 * B_r + d * (mjr * C_r));
     p2_nonconst.dip_fld() += prefactor * (-dip1 * B_r + d * (mir * C_r));
-#endif
+#endif //DIPOLE_FIELD_TRACKING
 
     // Calculate real-space torques
     auto const torque = prefactor * (-mixmj * B_r + mixr * (mjr * C_r));

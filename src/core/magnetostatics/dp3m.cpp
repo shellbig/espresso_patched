@@ -216,9 +216,9 @@ template <std::size_t cao> struct AssignTorques {
                         });
 
         p.torque() -= vector_product(p.calc_dip(), prefac * E);
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
         p.dip_fld() -= prefac * E;
-#endif
+#endif //DIPOLE_FIELD_TRACKING
         ++p_index;
       }
     }
@@ -559,14 +559,14 @@ double DipolarP3M::calc_surface_term(bool force_flag, bool energy_flag,
 
     ip = 0;
     for (auto &p : particles) {
-#ifdef DIPSUS
+#ifdef DIPOLE_FIELD_TRACKING
       auto const dip_fld = Utils::Vector3d{pref * box_dip[0], pref * box_dip[1],
                                            pref * box_dip[2]};
       auto &fld = p.dip_fld(); // Reference to dipole field on the particle
       fld[0] -= dip_fld[0];
       fld[1] -= dip_fld[1];
       fld[2] -= dip_fld[2];
-#endif // DIPSUS
+#endif // DIPOLE_FIELD_TRACKING
 
       auto &torque = p.torque();
       torque[0] -= pref * sumix[ip];
