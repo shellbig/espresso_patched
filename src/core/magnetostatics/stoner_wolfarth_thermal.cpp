@@ -180,12 +180,18 @@ void stoner_wolfarth_main(ParticleRange const &particles,
       ext_fld += ptr->H();
     }
   }
-  if (ext_fld != cntrl) {
+  bool OVERRIDE=false;
+  #ifdef DIPOLE_FIELD_TRACKING
+  OVERRIDE=true;
+  #endif //DIPOLE_FIELD_TRACKING
+  if (OVERRIDE || ext_fld != cntrl) {
     auto p = local_virt_particles.begin();
     for (auto pi = local_real_particles.begin();
          pi != local_real_particles.end(); ++pi, ++p) {
-      Utils::Vector3d ext_fld_dpl = {0., 0., 0.};
-      ext_fld_dpl = ext_fld + (*p)->dip_fld();
+      Utils::Vector3d ext_fld_dpl = ext_fld;
+      #ifdef DIPOLE_FIELD_TRACKING
+      ext_fld_dpl+=(*p)->dip_fld();
+      #endif //DIPOLE_FIELD_TRACKING
       double h = ext_fld_dpl.norm() * (*p)->Hkinv();
       auto e_h = ext_fld_dpl.normalized();
       // calc_director() result already normalised
