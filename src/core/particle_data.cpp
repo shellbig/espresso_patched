@@ -499,20 +499,16 @@ void set_particle_dipm(int part, double dipm) {
   mpi_update_particle_property<double, &ParticleProperties::dipm>(part, dipm);
 }
 
-#ifdef MAGNETODYNAMICS_LLG_MODEL
-void set_particle_dip(int part, Utils::Vector3d const &dip) {
-  set_particle_dipm(part, dip.norm());
-  mpi_update_particle_property<Utils::Vector3d, &ParticleProperties::dipu>(
-      part, dip.normalized());
-}
-#else
 void set_particle_dip(int part, Utils::Vector3d const &dip) {
   auto const [quat, dipm] = convert_dip_to_quat(dip);
   set_particle_dipm(part, dipm);
   set_particle_quat(part, quat);
-}
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  mpi_update_particle_property<Utils::Vector3d, &ParticleProperties::dipu>(
+    part, dip.normalized());
 #endif // MAGNETODYNAMICS_LLG_MODEL
-#endif
+}
+#endif // DIPOLES
 
 #ifdef DIPOLE_FIELD_TRACKING
 

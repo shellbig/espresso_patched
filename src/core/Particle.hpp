@@ -248,7 +248,8 @@ struct ParticleProperties {
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
   /** vector of the dipole moment */
-  Utils::Vector3d dipu = {0., 0., 0.};
+  Utils::Vector3d dipu = {0., 0., 1.};
+  //Utils::Vector3d dipu = Utils::convert_quaternion_to_director(Utils::Quaternion<double>::identity());
   /** effective field */
   Utils::Vector3d heff = {0., 0., 0.};
   /** stochastic thermal field */
@@ -362,6 +363,7 @@ struct ParticleProperties {
 
 #endif // MAGNETODYNAMICS_TSW_MODEL
 #ifdef MAGNETODYNAMICS_LLG_MODEL
+    ar & dipu;
     ar & heff;
     ar & htherm;
     ar & dip_omega;
@@ -670,8 +672,7 @@ public:
   auto &magdt() { return p.llg_model_params.magdt; }
   auto const &llg_model_params() const { return p.llg_model_params; }
   auto &llg_model_params() { return p.llg_model_params; }
-  auto calc_dip() const { return dipu() * dipm();  }
-//#endif
+  auto calc_dip() const { return use_llg_model() ? dipu() * dipm() : calc_director() * dipm(); }
 #else
   auto calc_dip() const { return calc_director() * dipm(); }
 #endif // MAGNETODYNAMICS_LLG_MODEL
