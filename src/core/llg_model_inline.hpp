@@ -7,6 +7,7 @@
 
 #include "Particle.hpp"
 #include "random.hpp"
+#include "integrate.hpp"
 #include "rotation.hpp"
 #include "thermostat.hpp"
 

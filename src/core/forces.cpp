@@ -33,6 +33,7 @@
 #include "communication.hpp"
 #include "constraints.hpp"
 #include "egg_model_inline.hpp"
+#include "llg_model_inline.hpp"
 #include "electrostatics/icc.hpp"
 #include "electrostatics/p3m_gpu.hpp"
 #include "forcecap.hpp"
@@ -265,6 +266,13 @@ void force_calc(CellStructure &cell_structure, double time_step, double kT) {
     }
   }
 #endif // MAGNETODYNAMICS_EGG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  for (auto &p : particles) {
+    if (p.llg_model_params().use_llg_model) {
+      apply_magnetic_torque(p, time_step);
+    }
+  }
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
   // Communication Step: ghost forces
   cell_structure.ghosts_reduce_forces();

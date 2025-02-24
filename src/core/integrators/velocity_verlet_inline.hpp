@@ -37,17 +37,17 @@ inline void velocity_verlet_propagate_vel_pos(const ParticleRange &particles,
                                               double time_step) {
 
   for (auto &p : particles) {
+#ifdef ROTATION
+    propagate_omega_quat_particle(p, time_step);
+#endif
 #ifdef MAGNETODYNAMICS_LLG_MODEL
     if (p.llg_model_params().use_llg_model) {
-      apply_magnetic_torque(p, time_step);
+      propagate_dipu_particle_multi_step(p, time_step);
     } else {    // rigid particle
       p.dipu() = convert_quaternion_to_director(p.quat());
       p.dip_omega() = convert_vector_body_to_space(p, p.omega());
     }
-#endif
-#ifdef ROTATION
-    propagate_omega_quat_particle(p, time_step);
-#endif
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
     // Don't propagate translational degrees of freedom of vs
     if (p.is_virtual())
@@ -83,10 +83,7 @@ inline void velocity_verlet_propagate_vel_final(const ParticleRange &particles,
       }
     }
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    if (p.llg_model_params().use_llg_model) {
-      propagate_dipu_particle_multi_step(p, time_step);
-    } else {    // rigid particle
-      p.dipu() = convert_quaternion_to_director(p.quat());
+    if (!p.llg_model_params().use_llg_model) {
       p.dip_omega() = convert_vector_body_to_space(p, p.omega());
     }
 #endif // MAGNETODYNAMICS_LLG_MODEL
