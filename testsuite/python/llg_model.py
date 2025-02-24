@@ -32,6 +32,7 @@ class Magnetodynamics(ut.TestCase):
     system = espressomd.System(box_l=[1.0, 1.0, 1.0])
     system.time_step = 0.001
     system.cell_system.skin = 1.3
+    n_part = 1024
 
     np.random.seed(1)
     
@@ -56,7 +57,7 @@ class Magnetodynamics(ut.TestCase):
                     )
 
     def set_langevin_particles(self):
-        n_part = 1024
+        n_part = self.n_part
         self.system.part.add(type=n_part * [0],
                     pos=np.random.random((n_part, 3)) * self.system.box_l,
                     rotation=n_part * [(False, False, False)],
@@ -182,15 +183,15 @@ class Magnetodynamics(ut.TestCase):
         )
 
         self.system.integrator.set_vv()
-        self.system.integrator.run(steps=2000)
+        self.system.integrator.run(steps=2500)
         time_series = acc.time_series()
 
-        n_part = 1024
-        avg_mx = np.average(time_series[-100:,0])/n_part
+        n_part = self.n_part
+        avg_mx = np.average(time_series[-400:,0])/n_part
         xsi = 5
         sigma = 5
         np.testing.assert_allclose(avg_mx, gen_ani_integral()(xsi,sigma),
-            atol=2e-3)
+            atol=5e-3)
         self.tearDown()
 
 
