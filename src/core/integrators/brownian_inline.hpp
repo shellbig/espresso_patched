@@ -53,15 +53,14 @@ inline void brownian_dynamics_propagator(BrownianThermostat const &brownian,
       p.quat() = bd_random_walk_rot(brownian, p, time_step, kT);
       p.omega() += bd_random_walk_vel_rot(brownian, p);
 
-#ifdef EGG_MODEL
+#ifdef MAGNETODYNAMICS_EGG_MODEL
       if (p.is_virtual() and p.use_egg_model()) {
         egg_model_bd_internal_rotation(brownian, p, time_step, kT);
       }
-#endif // EGG_MODEL
+#endif // MAGNETODYNAMICS_EGG_MODEL
 
 #endif // ROTATION
     }
-
   }
   increment_sim_time(time_step);
 }
