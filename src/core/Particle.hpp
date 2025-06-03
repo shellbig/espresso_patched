@@ -259,10 +259,6 @@ struct ParticleProperties {
 
   struct LLGModelParameters {
     bool use_llg_model = false;
-    /** the field frequency 2*pi*f */
-    double Homega = 0.;
-    /** the external field as in the constraint */
-    Utils::Vector3d Hext = {0.,0.,0.};
     /** the maximum anisotropy field amplitude */
     double Hani = 0.;
     /** Gilbert damping parameter for Landau-Lifshitz-Gilbert equation */
@@ -274,8 +270,6 @@ struct ParticleProperties {
     
     template <class Archive> void serialize(Archive &ar, long int) {
       ar & use_llg_model;
-      ar & Homega;
-      ar & Hext;
       ar & Hani;
       ar & Galpha;
       ar & gyromag;
@@ -658,10 +652,6 @@ public:
   auto const &dip_omega() const { return p.dip_omega; }
   auto &dip_omega() { return p.dip_omega; }
   auto use_llg_model() const { return p.llg_model_params.use_llg_model; }
-  auto const &Homega() const { return p.llg_model_params.Homega; }
-  auto &Homega() { return p.llg_model_params.Homega; }
-  auto const &Hext() const { return p.llg_model_params.Hext; }
-  auto &Hext() { return p.llg_model_params.Hext; }
   auto const &Hani() const { return p.llg_model_params.Hani; }
   auto &Hani() { return p.llg_model_params.Hani; }
   auto const &Galpha() const { return p.llg_model_params.Galpha; }

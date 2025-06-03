@@ -324,27 +324,23 @@ ParticleHandle::ParticleHandle() {
          try {
           // Parse the input array
           auto const array = get_value<std::vector<Variant>>(value);
-           if (array.size() != 7) {
+           if (array.size() != 5) {
              throw 0;
            }
            // Assign the parsed values to the LLGModelParameters structure
            llg_model_params.use_llg_model = get_value<bool>(array[0]);
-           llg_model_params.Homega = get_value<double>(array[1]);
-           llg_model_params.Hext = get_value<Utils::Vector3d>(array[2]);
-           llg_model_params.Hani = get_value<double>(array[3]);
-           llg_model_params.Galpha = get_value<double>(array[4]);
-           llg_model_params.gyromag = get_value<double>(array[5]);
-           llg_model_params.magdt = get_value<double>(array[6]);
+           llg_model_params.Hani = get_value<double>(array[1]);
+           llg_model_params.Galpha = get_value<double>(array[2]);
+           llg_model_params.gyromag = get_value<double>(array[3]);
+           llg_model_params.magdt = get_value<double>(array[4]);
            } catch (...) {
              throw std::invalid_argument(error_msg(
                "llg_model_params",
-               "must take the form [use_llg_model, Homega, Hext, Hani, Galpha, gyromag, magdt]"));
+               "must take the form [use_llg_model, Hani, Galpha, gyromag, magdt]"));
            }
 
            // Call the setter function to update the particle properties
            set_particle_llg_model_params(m_pid, llg_model_params.use_llg_model,
-                    llg_model_params.Homega,
-                    llg_model_params.Hext,
                     llg_model_params.Hani,
                     llg_model_params.Galpha,
                     llg_model_params.gyromag,
@@ -354,8 +350,7 @@ ParticleHandle::ParticleHandle() {
          // Retrieve the particle's current LLGModelParameters
          auto const &p = particle();
          auto const &params = p.llg_model_params();
-         return std::vector<Variant>{{params.use_llg_model, params.Homega,
-                                      params.Hext, params.Hani,
+         return std::vector<Variant>{{params.use_llg_model, params.Hani,
                                       params.Galpha, params.gyromag,
                                       params.magdt}};
        }},
@@ -666,7 +661,7 @@ void ParticleHandle::do_construct(VariantMap const &params) {
 
     // set particle properties (filter out read-only and deferred properties)
     std::vector<std::string> skip = {
-        "pos_folded", "pos", "quat", "director",  "id",    "lees_edwards_flag",
+        "pos_folded", "pos", "quat", "director", "id",    "lees_edwards_flag",
         "exclusions", "node", "image_box", "bonds", "__cpt_sentinel",
 #ifndef MAGNETODYNAMICS_LLG_MODEL
         "dip",

@@ -626,13 +626,11 @@ void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega) {
   mpi_update_particle_property<Utils::Vector3d,
     &ParticleProperties::dip_omega>(part, dip_omega);
 }
-void set_particle_llg_model_params(int part, bool use_llg_model, double Homega, Utils::Vector3d Hext, double Hani, double Galpha, double gyromag, double magdt) {
+void set_particle_llg_model_params(int part, bool use_llg_model, double Hani, double Galpha, double gyromag, double magdt) {
 
   auto llg_model_params = get_particle_data(part).llg_model_params();
   
   llg_model_params.use_llg_model = use_llg_model;
-  llg_model_params.Homega = Homega;
-  llg_model_params.Hext = Hext;
   llg_model_params.Hani = Hani;
   llg_model_params.Galpha = Galpha;
   llg_model_params.gyromag = gyromag;

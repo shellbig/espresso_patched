@@ -267,13 +267,10 @@ class ParticleHandle(ScriptInterfaceHelper):
         Magnetization dynamics parameters.
 
         Allows for manual access to the attributes of dipoles in the
-        "LLG_model" implementation. Format: ``(PID, use_llg_model, Homega, Hext
+        "LLG_model" implementation. Format: ``(PID, use_llg_model,
         Hani, Galpha, gyromag, magdt)``.
         PID denotes the id of the particle for which the LLG_model can be
         activated with use_llg_model.
-        The external field has to be specified here again (additionally to the constraint)
-        with the field frequency Homega (if it is an alternating field)
-        and the field strength Hext.
         The Gilbert damping parameter Galpha and the gyromagnetic ratio have to be
         specified for the Landau-Lifshitz-Gilbert equation.
         The time step for the magnetic problem 'magdt' has to be

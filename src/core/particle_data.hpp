@@ -231,17 +231,13 @@ void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega);
 /** Call only on the head node: set parameters for the LLG model.
  *  @param part the particle.
  *  @param use_llg_model a flag to activate the llg_model.
- *  @param Homega the frequency of the external field.
- *  @param Hext the maximum vector of the external field.
  *  @param Hani the particle's maximum anisotropy field.
  *  @param Galpha the Gilbert damping parameter.
  *  @param gyromag the gyromagnetic ratio.
  *  @param magdt the time step for the magnetic integration.
  */
-//void set_particle_external_field_axis(int part,
-//                                 Utils::Vector3d const &Hext);
 void set_particle_llg_model_params(int part, bool use_llg_model,
-                                   double Homega, Utils::Vector3d Hext, double Hani, double Galpha,
+                                   double Hani, double Galpha,
                                    double gyromag, double magdt);
 
 #endif // MAGNETODYNAMICS_LLG_MODEL
@@ -387,24 +383,12 @@ inline Utils::Vector3d get_particle_axis(Particle const *p) {
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-
-/*
-inline Utils::Vector3d Hext
-get_particle_external_field_axis(Particle const *p) {
-  return p->llg_model_params().external_field_axis;
-}
-*/
-
 inline void get_particle_llg_model_params(Particle const *p, int &use_llg_model,
-                                          double &Homega,
-                                          Utils::Vector3d Hext,
                                           double &Hani,
                                           double &Galpha,
                                           double &gyromag,
                                           double &magdt) {
   use_llg_model = p->llg_model_params().use_llg_model;
-  Homega = p->llg_model_params().Homega;
-  Hext = p->llg_model_params().Hext;
   Hani = p->llg_model_params().Hani;
   Galpha = p->llg_model_params().Galpha;
   gyromag = p->llg_model_params().gyromag;
