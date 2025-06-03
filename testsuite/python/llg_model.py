@@ -47,8 +47,6 @@ class Magnetodynamics(ut.TestCase):
                     #dipm=n_part * [1.],
                     llg_model_params=n_part*[[
                         True,
-                        0.,
-                        [0.5,0,0],
                         2,
                         0.1,
                         70,
@@ -64,8 +62,6 @@ class Magnetodynamics(ut.TestCase):
                     fix=n_part * [(True, True, True)],
                     llg_model_params=n_part*[[
                         True,
-                        0.,
-                        [1,0,0],
                         2,
                         0.1,
                         47.69599836457976,
