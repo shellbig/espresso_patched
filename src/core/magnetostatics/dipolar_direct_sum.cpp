@@ -30,6 +30,7 @@
 #include "communication.hpp"
 #include "constraints.hpp"
 #include "constraints/HomogeneousMagneticField.hpp"
+#include "constraints/AlternatingMagneticField.hpp"
 #include "errorhandling.hpp"
 #include "grid.hpp"
 

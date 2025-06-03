@@ -29,6 +29,7 @@
 #include <vector>
 
 #include "HomogeneousMagneticField.hpp"
+#include "AlternatingMagneticField.hpp"
 
 void on_constraint_change();
 
@@ -100,6 +101,9 @@ public:
         if (auto hmf = 
             std::dynamic_pointer_cast<HomogeneousMagneticField>(constraint)) {
             mag_fields += hmf->add_magnetic_field(p, pos, t);
+        } else if (auto amf =
+            std::dynamic_pointer_cast<AlternatingMagneticField>(constraint)) {
+            mag_fields += amf->add_magnetic_field(p, pos, t);
         }
       }
 

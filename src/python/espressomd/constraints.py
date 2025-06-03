@@ -195,6 +195,22 @@ class HomogeneousMagneticField(Constraint):
 
     _so_name = "Constraints::HomogeneousMagneticField"
 
+@script_interface_register
+class AlternatingMagneticField(Constraint):
+
+    """
+    Attributes
+    ----------
+    H0 : (3,) array_like of :obj:`float`
+        Magnetic field vector. Describes both field direction and
+        maximum amplitude of the magnetic field (via length of the vector).
+    omega : :obj:`float`
+        Frequency.
+    phi : :obj:`float`, optional
+        Phase shift
+    """
+
+    _so_name = "Constraints::AlternatingMagneticField"
 
 class _Interpolated(Constraint):
 
