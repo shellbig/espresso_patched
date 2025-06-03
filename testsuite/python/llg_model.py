@@ -80,6 +80,7 @@ class Magnetodynamics(ut.TestCase):
         self.system.part.clear()
         self.system.thermostat.turn_off()
         self.system.integrator.set_vv()
+        self.system.constraints.clear()
         self.system.time = 0.
         self.system.auto_update_accumulators.clear()
 
@@ -124,6 +125,11 @@ class Magnetodynamics(ut.TestCase):
             gamma_magnet=0.0001,
             seed=42
         )
+
+        Hext = 0.5
+        H_constraint = espressomd.constraints.HomogeneousMagneticField(H=[Hext,0,0])
+        self.system.constraints.add(H_constraint)
+
         self.system.integrator.set_vv()
 
         self.system.integrator.run(steps=1000)
@@ -139,7 +145,7 @@ class Magnetodynamics(ut.TestCase):
                 theta=np.deg2rad(90),
 
                 # reduced external field = Hext/Hani
-                h=0.25
+                h=Hext/2
             ),
             atol=1e-5)
         self.tearDown()
@@ -177,6 +183,9 @@ class Magnetodynamics(ut.TestCase):
             gamma_magnet=0.00017298778441412224,
             seed=42
         )
+
+        H_constraint = espressomd.constraints.HomogeneousMagneticField(H=[1,0,0])
+        self.system.constraints.add(H_constraint)
 
         self.system.integrator.set_vv()
         self.system.integrator.run(steps=2500)
