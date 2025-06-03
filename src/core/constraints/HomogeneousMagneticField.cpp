@@ -43,4 +43,13 @@ void HomogeneousMagneticField::add_energy(const Particle &p,
 #endif
 }
 
+Utils::Vector3d HomogeneousMagneticField::add_magnetic_field(const Particle &p,
+                                          const Utils::Vector3d &, double) const {
+#ifdef DIPOLES
+  return m_field;
+#else
+  return {0.,0.,0.};
+#endif
+}
+
 } // namespace Constraints

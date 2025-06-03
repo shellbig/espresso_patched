@@ -38,6 +38,9 @@ public:
   void add_energy(const Particle &p, const Utils::Vector3d &, double,
                   Observable_stat &energy) const override;
 
+  Utils::Vector3d add_magnetic_field(const Particle &p,
+                  const Utils::Vector3d &, double) const;
+
   ParticleForce force(const Particle &p, const Utils::Vector3d &,
                       double) override;
 

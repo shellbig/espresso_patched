@@ -41,7 +41,6 @@ inline void propagate_dipu_particle(Particle &p,double time_step) {
 inline void propagate_dipu_particle_multi_step(Particle &p,double time_step) {
   auto magdt  = p.llg_model_params().magdt;   // magnetic time step
   Utils::Vector3d dip = p.dipu();
-  Utils::Vector3d const easy_axis= p.calc_director();
   
   // perform multiple steps for the magnetic problem
   // during one step of the mechanical problem
@@ -61,27 +60,25 @@ inline void propagate_dipu_particle_multi_step(Particle &p,double time_step) {
     dip += dm_final*magdt;
     dip.normalize();
   } while (remaining_time > 0.0);
-  //std::cout << dip << std::endl;
-  auto const hani = p.llg_model_params().Hani * (dip*easy_axis) * easy_axis;
-  p.heff() += hani;
-  // anisotropy_energy = dip * hani;
+
   p.dipu() = dip;
+
+  // Utils::Vector3d const easy_axis= p.calc_director();
+  // auto const hani = p.llg_model_params().Hani * (dip*easy_axis) * easy_axis;
+  // p.heff() += hani;
+  // anisotropy_energy = dip * hani;
+
+  // reset the effective field
+  p.heff() = {0.,0.,0.};
 }
 
 inline void apply_magnetic_torque(Particle &p, double time_step) {
-  double sim_time = get_sim_time();
   Utils::Vector3d const dip = p.dipu();
-  auto const Homega   = p.llg_model_params().Homega;  // field frequency
   auto const gyromag  = p.llg_model_params().gyromag; // gyromagnetic ratio
-  Utils::Vector3d hext= p.llg_model_params().Hext;    // external B-field
 
-  // setting the alternating current of the external field
-  if (Homega != 0.0) {
-    hext[0] *= sin(Homega * sim_time);
-  }
   // summing the field components that are constant during one mechanical step
   // dipole-dipole-interaction field, thermal field, external field, Barnett field
-  p.heff() = p.dip_fld() + p.htherm() + hext
+  p.heff() += p.dip_fld() + p.htherm()
     - vector_product(dip,convert_vector_body_to_space(p, p.omega()))
     * p.llg_model_params().Galpha/gyromag;
   // Einstein-de-Haas effect

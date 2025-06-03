@@ -28,6 +28,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include "HomogeneousMagneticField.hpp"
+
 void on_constraint_change();
 
 namespace Constraints {
@@ -88,6 +90,22 @@ public:
 
       p.f += force;
     }
+
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    /** Adding the magnetic field from only the magnetic field constraints to the effective field for magnetodynamics */
+    for (auto &p : particles) {
+      auto const pos = folded_position(p.pos(), box_geo);
+      Utils::Vector3d mag_fields = {0.,0.,0.};
+      for (auto const &constraint : *this) {
+        if (auto hmf = 
+            std::dynamic_pointer_cast<HomogeneousMagneticField>(constraint)) {
+            mag_fields += hmf->add_magnetic_field(p, pos, t);
+        }
+      }
+
+      p.heff() = mag_fields;
+    }
+#endif
   }
 
   void add_energy(const ParticleRange &particles, double time,
