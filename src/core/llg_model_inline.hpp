@@ -17,7 +17,7 @@
 #include <iostream>
 
 // all calculations are performed in the space-fixed/lab frame
-inline Utils::Vector3d llg(double sim_time, Utils::Vector3d dip, Particle &p) {
+inline Utils::Vector3d llg(Utils::Vector3d dip, Particle &p) {
   // calculating the change in magnetic momentum
   // via the Landau-Lifshitz-Gilbert equation
   auto const Galpha   = p.llg_model_params().Galpha;  // Gilbert damping
@@ -34,12 +34,11 @@ inline Utils::Vector3d llg(double sim_time, Utils::Vector3d dip, Particle &p) {
 
 inline void propagate_dipu_particle(Particle &p,double time_step) {
   // updating the direction of the dipole moment
-  p.dipu() += llg(get_sim_time(), p.dipu(), p)*time_step;
+  p.dipu() += llg(p.dipu(), p)*time_step;
   p.dipu().normalize();
 }
 
 inline void propagate_dipu_particle_multi_step(Particle &p,double time_step) {
-  double sim_time = get_sim_time();
   auto magdt  = p.llg_model_params().magdt;   // magnetic time step
   Utils::Vector3d dip = p.dipu();
   Utils::Vector3d const easy_axis= p.calc_director();
@@ -56,9 +55,9 @@ inline void propagate_dipu_particle_multi_step(Particle &p,double time_step) {
     }
     // updating the direction of the dipol moment
     // Heun's method
-    auto const dm_intermediate = llg(sim_time, dip, p);
+    auto const dm_intermediate = llg(dip, p);
     auto const dip_intermediate = dip + magdt*dm_intermediate;
-    auto const dm_final = (dm_intermediate + llg(sim_time, dip_intermediate, p))/2;
+    auto const dm_final = (dm_intermediate + llg(dip_intermediate, p))/2;
     dip += dm_final*magdt;
     dip.normalize();
   } while (remaining_time > 0.0);
@@ -86,7 +85,7 @@ inline void apply_magnetic_torque(Particle &p, double time_step) {
     - vector_product(dip,convert_vector_body_to_space(p, p.omega()))
     * p.llg_model_params().Galpha/gyromag;
   // Einstein-de-Haas effect
-  p.torque() += 1./gyromag * llg(sim_time, dip, p) * p.dipm();
+  p.torque() += 1./gyromag * llg(dip, p) * p.dipm();
 }
 #endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // LLG_MODEL_INLINE_HPP
