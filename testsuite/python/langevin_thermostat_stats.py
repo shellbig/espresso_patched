@@ -139,12 +139,19 @@ class LangevinThermostat(ut.TestCase, thermostats_common.ThermostatsCommon):
         gamma_rot_i = 4.7
         gamma_rot_a = [4.2, 1, 1.2]
 
+        # magnetodynamics gamma
+        gamma_mag_i = gamma * 1e14
+        gamma_mag_a = [gamma_mag_i] * 3
+
         # If we have langevin per particle:
         # Translation
         per_part_gamma = 1.63
         # Rotational
         per_part_gamma_rot_i = 2.6
         per_part_gamma_rot_a = [2.4, 3.8, 1.1]
+        # LLG model
+        per_part_gamma_mag_i = per_part_gamma * 1e14
+        per_part_gamma_mag_a = [per_part_gamma_mag_i] * 3
 
         # Particle with global thermostat params
         p_global = system.part.add(pos=(0, 0, 0))
@@ -174,8 +181,17 @@ class LangevinThermostat(ut.TestCase, thermostats_common.ThermostatsCommon):
                 # Rotation without particle anisotropy
                 system.thermostat.set_langevin(
                     kT=kT, gamma=gamma, gamma_rotation=gamma_rot_i, seed=41)
+        elif espressomd.has_features("MAGNETODYNAMICS_LLG_MODEL"):
+            if espressomd.has_features("PARTICLE_ANISOTROPY"):
+                # particle anisotropy and LLG model
+                system.thermostat.set_langevin(
+                    kT=kT, gamma=gamma, gamma_magnet=gamma_mag_a, seed=41)
+            else:
+                # LLG model without particle anisotropy
+                system.thermostat.set_langevin(
+                    kT=kT, gamma=gamma, gamma_magnet=gamma_mag_i, seed=41)
         else:
-            # No rotation
+            # No magnetodynamics
             system.thermostat.set_langevin(kT=kT, gamma=gamma, seed=41)
 
         system.cell_system.skin = 0.4

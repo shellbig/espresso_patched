@@ -244,6 +244,40 @@ class ParticleHandle(ScriptInterfaceHelper):
 
         .. note::
            This needs the feature ``DIPOLES``.
+    
+    heff: (3,) array_like of :obj:`float`
+        The effective field at the position of the particle
+
+        .. note::
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
+
+    htherm: (3,) array_like of :obj:`float`
+        The thermal field
+
+        .. note::
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
+
+    dip_omega: (3,) array_like of :obj:`float`
+        The angular velocity of the magnetic dipole
+
+        .. note::
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
+
+    llg_model_params: :obj:`tuple`
+        Magnetization dynamics parameters.
+
+        Allows for manual access to the attributes of dipoles in the
+        "LLG_model" implementation. Format: ``(PID, use_llg_model,
+        Hani, Galpha, gyromag, magdt)``.
+        PID denotes the id of the particle for which the LLG_model can be
+        activated with use_llg_model.
+        The Gilbert damping parameter Galpha and the gyromagnetic ratio have to be
+        specified for the Landau-Lifshitz-Gilbert equation.
+        The time step for the magnetic problem 'magdt' has to be
+        specified for the multi-step method.
+
+        .. note::
+           This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``
 
     ext_force: (3,) array_like of :obj:`float`
         An additional external force applied to the particle.
@@ -292,6 +326,16 @@ class ParticleHandle(ScriptInterfaceHelper):
         .. note::
             This needs features ``THERMOSTAT_PER_PARTICLE``, ``ROTATION`` and
             optionally ``PARTICLE_ANISOTROPY``.
+    
+    gamma_mag: :obj:`float` or (3,) array_like of :obj:`float`
+        The particle magnetic frictional coefficient used in
+        the Langevin thermostat.
+
+        gamma_mag : :obj:`float` or (3,) array_like of :obj:`float`
+
+        .. note::
+            This needs features ``THERMOSTAT_PER_PARTICLE``,
+            ``MAGNETODYNAMICS_LLG_MODEL`` and optionally ``PARTICLE_ANISOTROPY``.
 
     rotation: (3,) array_like of :obj:`bool`
         Switches the particle's rotational degrees of freedom in the

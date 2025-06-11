@@ -301,6 +301,60 @@ ParticleHandle::ParticleHandle() {
              {params.use_egg_model, params.egg_gamma, params.aniso_energy}};
        }},
 #endif // MAGNETODYNAMICS_EGG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+      {"heff",
+       [this](Variant const &value) {
+         set_particle_heff(m_pid, get_value<Utils::Vector3d>(value));
+       },
+       [this]() { return particle().heff(); }},
+      {"htherm",
+       [this](Variant const &value) {
+         set_particle_htherm(m_pid, get_value<Utils::Vector3d>(value));
+       },
+       [this]() { return particle().htherm(); }},
+      {"dip_omega",
+       [this](Variant const &value) {
+         set_particle_dip_omega(m_pid, get_value<Utils::Vector3d>(value));
+       },
+       [this]() { return particle().dip_omega(); }},
+      {"llg_model_params",
+       [this](Variant const &value) {
+         // Initialize the LLGModelParameters structure
+         ParticleProperties::LLGModelParameters llg_model_params{};
+         try {
+          // Parse the input array
+          auto const array = get_value<std::vector<Variant>>(value);
+           if (array.size() != 5) {
+             throw 0;
+           }
+           // Assign the parsed values to the LLGModelParameters structure
+           llg_model_params.use_llg_model = get_value<bool>(array[0]);
+           llg_model_params.Hani = get_value<double>(array[1]);
+           llg_model_params.Galpha = get_value<double>(array[2]);
+           llg_model_params.gyromag = get_value<double>(array[3]);
+           llg_model_params.magdt = get_value<double>(array[4]);
+           } catch (...) {
+             throw std::invalid_argument(error_msg(
+               "llg_model_params",
+               "must take the form [use_llg_model, Hani, Galpha, gyromag, magdt]"));
+           }
+
+           // Call the setter function to update the particle properties
+           set_particle_llg_model_params(m_pid, llg_model_params.use_llg_model,
+                    llg_model_params.Hani,
+                    llg_model_params.Galpha,
+                    llg_model_params.gyromag,
+                    llg_model_params.magdt);
+       },
+       [this]() {
+         // Retrieve the particle's current LLGModelParameters
+         auto const &p = particle();
+         auto const &params = p.llg_model_params();
+         return std::vector<Variant>{{params.use_llg_model, params.Hani,
+                                      params.Galpha, params.gyromag,
+                                      params.magdt}};
+       }},
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #ifdef ROTATIONAL_INERTIA
       {"rinertia",
        [this](Variant const &value) {
@@ -353,6 +407,13 @@ ParticleHandle::ParticleHandle() {
        },
        [this]() { return particle().gamma_rot(); }},
 #endif // ROTATION
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+      {"gamma_mag",
+       [this](Variant const &value) {
+         set_particle_gamma_mag(m_pid, get_gamma_safe(value));
+       },
+       [this]() { return particle().gamma_mag(); }},
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
       {"pos_folded", AutoParameter::read_only,
        [this]() { return folded_position(particle().pos(), ::box_geo); }},
@@ -555,11 +616,13 @@ static auto const contradicting_arguments_quat = std::vector<
       "Setting 'dip' is sufficient as it defines the scalar dipole moment."}},
     {{"quat", "director",
       "Setting 'quat' is sufficient as it defines the director."}},
+#ifndef MAGNETODYNAMICS_LLG_MODEL
     {{"dip", "quat",
       "Setting 'dip' would overwrite 'quat'. Set 'quat' and 'dipm' instead."}},
     {{"dip", "director",
       "Setting 'dip' would overwrite 'director'. Set 'director' and "
       "'dipm' instead."}},
+#endif // MAGNETODYNAMICS_LLG_MODEL
 }};
 #endif // ROTATION
 
@@ -598,8 +661,11 @@ void ParticleHandle::do_construct(VariantMap const &params) {
 
     // set particle properties (filter out read-only and deferred properties)
     std::vector<std::string> skip = {
-        "pos_folded", "pos", "quat", "director",  "id",    "lees_edwards_flag",
-        "exclusions", "dip", "node", "image_box", "bonds", "__cpt_sentinel",
+        "pos_folded", "pos", "quat", "director", "id",    "lees_edwards_flag",
+        "exclusions", "node", "image_box", "bonds", "__cpt_sentinel",
+#ifndef MAGNETODYNAMICS_LLG_MODEL
+        "dip",
+#endif
     };
 #ifdef ROTATION
     // multiple parameters can potentially set the quaternion, but only one
@@ -610,9 +676,16 @@ void ParticleHandle::do_construct(VariantMap const &params) {
       do_set_parameter("quat", params.at("quat"));
     } else if (has_param("director")) {
       do_set_parameter("director", params.at("director"));
-    } else if (has_param("dip")) {
+    }
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    else if (has_param("dip")) {
+      do_set_parameter("director", params.at("dip"));
+    }
+#else
+    else if (has_param("dip")) {
       do_set_parameter("dip", params.at("dip"));
     }
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // ROTATION
     for (auto const &kv : params) {
       if (std::find(skip.begin(), skip.end(), kv.first) == skip.end()) {

@@ -233,7 +233,11 @@ class ParticleProperties(ut.TestCase):
         invalid_combinations = [
             {'quat': [1., 1., 1., 1.], 'director': [1., 1., 1.]},
         ]
-        if espressomd.has_features(["DIPOLES"]):
+        if espressomd.has_features(["MAGNETODYNAMICS_LLG_MODEL"]):
+            invalid_combinations += [
+                {'dip': [1., 1., 1.], 'dipm': 1.}
+            ]
+        elif espressomd.has_features(["DIPOLES"]):
             invalid_combinations += [
                 {'dip': [1., 1., 1.], 'dipm': 1.},
                 {'dip': [1., 1., 1.], 'quat': [1., 1., 1., 1.]},

@@ -26,6 +26,7 @@
 #include "cell_system/CellStructure.hpp"
 #include "integrate.hpp"
 #include "rotation.hpp"
+#include "llg_model_inline.hpp"
 
 /** Propagate the velocities and positions. Integration steps before force
  *  calculation of the Velocity Verlet integrator: <br> \f[ v(t+0.5 \Delta t) =
@@ -39,6 +40,14 @@ inline void velocity_verlet_propagate_vel_pos(const ParticleRange &particles,
 #ifdef ROTATION
     propagate_omega_quat_particle(p, time_step);
 #endif
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    if (p.llg_model_params().use_llg_model) {
+      propagate_dipu_particle_multi_step(p, time_step);
+    } else {    // rigid particle
+      p.dipu() = convert_quaternion_to_director(p.quat());
+      p.dip_omega() = convert_vector_body_to_space(p, p.omega());
+    }
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
     // Don't propagate translational degrees of freedom of vs
     if (p.is_virtual())
@@ -73,6 +82,11 @@ inline void velocity_verlet_propagate_vel_final(const ParticleRange &particles,
         p.v()[j] += 0.5 * time_step * p.force()[j] / p.mass();
       }
     }
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    if (!p.llg_model_params().use_llg_model) {
+      p.dip_omega() = convert_vector_body_to_space(p, p.omega());
+    }
+#endif // MAGNETODYNAMICS_LLG_MODEL
   }
 }
 

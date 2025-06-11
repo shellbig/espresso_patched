@@ -208,6 +208,40 @@ void set_particle_axis_quat_body(int part,
 
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+/** Call only on the head node: set particle effective field.
+ *  @param part the particle.
+ *  @param heff its effective field (consisting of the stray field of other particles, 
+ *  the external field and the anisotropy field of the particle)
+ */
+void set_particle_heff(int part, Utils::Vector3d const &heff);
+
+/** Call only on the head node: set particle thermal field.
+ *  @param part the particle.
+ *  @param htherm its stochastic thermal field
+ */
+void set_particle_htherm(int part, Utils::Vector3d const &htherm);
+
+/** Call only on the head node: set dipolar angular velocity of the particle.
+ *  @param part the particle.
+ *  @param dip_omega, the angular velocity of its dipolar moment
+ */
+void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega);
+
+/** Call only on the head node: set parameters for the LLG model.
+ *  @param part the particle.
+ *  @param use_llg_model a flag to activate the llg_model.
+ *  @param Hani the particle's maximum anisotropy field.
+ *  @param Galpha the Gilbert damping parameter.
+ *  @param gyromag the gyromagnetic ratio.
+ *  @param magdt the time step for the magnetic integration.
+ */
+void set_particle_llg_model_params(int part, bool use_llg_model,
+                                   double Hani, double Galpha,
+                                   double gyromag, double magdt);
+
+#endif // MAGNETODYNAMICS_LLG_MODEL
+
 #ifdef THERMOSTAT_PER_PARTICLE
 /** Call only on the head node: set particle frictional coefficient.
  *  @param part the particle.
@@ -220,11 +254,18 @@ void set_particle_gamma(int part, Utils::Vector3d const &gamma);
 #endif
 #ifdef ROTATION
 #ifndef PARTICLE_ANISOTROPY
-void set_particle_gamma_rot(int part, double gamma);
+void set_particle_gamma_rot(int part, double gamma_rot);
 #else
 void set_particle_gamma_rot(int part, Utils::Vector3d const &gamma_rot);
-#endif
-#endif
+#endif // PARTICLE_ANISOTROPY
+#endif //ROTATION
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+#ifndef PARTICLE_ANISOTROPY
+void set_particle_gamma_mag(int part, double gamma_mag);
+#else
+void set_particle_gamma_mag(int part, const Utils::Vector3d &gamma_mag);
+#endif // PARTICLE_ANISOTROPY
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES
@@ -340,5 +381,20 @@ inline Utils::Vector3d get_particle_axis(Particle const *p) {
 }
 
 #endif // MAGNETODYNAMICS_EGG_MODEL
+
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+inline void get_particle_llg_model_params(Particle const *p, int &use_llg_model,
+                                          double &Hani,
+                                          double &Galpha,
+                                          double &gyromag,
+                                          double &magdt) {
+  use_llg_model = p->llg_model_params().use_llg_model;
+  Hani = p->llg_model_params().Hani;
+  Galpha = p->llg_model_params().Galpha;
+  gyromag = p->llg_model_params().gyromag;
+  magdt = p->llg_model_params().magdt;
+}
+
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 #endif

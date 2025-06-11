@@ -41,6 +41,7 @@ cdef extern from "thermostat.hpp":
 
     IF PARTICLE_ANISOTROPY:
         cdef cppclass LangevinThermostat(BaseThermostat):
+            Vector3d gamma_magnet
             Vector3d gamma_rotation
             Vector3d gamma
         cdef cppclass BrownianThermostat(BaseThermostat):
@@ -48,6 +49,7 @@ cdef extern from "thermostat.hpp":
             Vector3d gamma
     ELSE:
         cdef cppclass LangevinThermostat(BaseThermostat):
+            double gamma_magnet
             double gamma_rotation
             double gamma
         cdef cppclass BrownianThermostat(BaseThermostat):
@@ -96,12 +98,14 @@ cdef extern from "thermostat.hpp":
 
         void mpi_set_langevin_gamma(const Vector3d & gamma)
         void mpi_set_langevin_gamma_rot(const Vector3d & gamma)
+        void mpi_set_langevin_gamma_mag(const Vector3d & gamma)
     ELSE:
         void mpi_set_brownian_gamma(const double & gamma)
         void mpi_set_brownian_gamma_rot(const double & gamma)
 
         void mpi_set_langevin_gamma(const double & gamma)
         void mpi_set_langevin_gamma_rot(const double & gamma)
+        void mpi_set_langevin_gamma_mag(const double & gamma)
 
     void mpi_set_thermo_virtual(cbool thermo_virtual)
     void mpi_set_temperature(double temperature)

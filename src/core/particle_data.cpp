@@ -136,7 +136,16 @@ using UpdatePropertyMessage = boost::variant
         , UpdateProperty<ParticleProperties::EggModelParameters,
                          &Prop::egg_model_params>
 #endif//MAGNETODYNAMICS_EGG_MODEL
-#endif
+#endif // VIRTUAL_SITES
+
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+        , UpdateProperty<Utils::Vector3d, &Prop::dipu>
+        , UpdateProperty<Utils::Vector3d, &Prop::heff>
+        , UpdateProperty<Utils::Vector3d, &Prop::htherm>
+        , UpdateProperty<Utils::Vector3d, &Prop::dip_omega>
+        , UpdateProperty<ParticleProperties::LLGModelParameters,
+                         &Prop::llg_model_params>
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #ifdef THERMOSTAT_PER_PARTICLE
 #ifndef PARTICLE_ANISOTROPY
         , UpdateProperty<double, &Prop::gamma>
@@ -150,6 +159,13 @@ using UpdatePropertyMessage = boost::variant
         , UpdateProperty<Utils::Vector3d, &Prop::gamma_rot>
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+#ifndef PARTICLE_ANISOTROPY
+        , UpdateProperty<double, &Prop::gamma_mag>
+#else
+        , UpdateProperty<Utils::Vector3d, &Prop::gamma_mag>
+#endif // PARTICLE_ANISOTROPY
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
         , UpdateProperty<uint8_t, &Prop::ext_flag>
@@ -487,8 +503,12 @@ void set_particle_dip(int part, Utils::Vector3d const &dip) {
   auto const [quat, dipm] = convert_dip_to_quat(dip);
   set_particle_dipm(part, dipm);
   set_particle_quat(part, quat);
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  mpi_update_particle_property<Utils::Vector3d, &ParticleProperties::dipu>(
+    part, dip.normalized());
+#endif // MAGNETODYNAMICS_LLG_MODEL
 }
-#endif
+#endif // DIPOLES
 
 #ifdef DIPOLE_FIELD_TRACKING
 
@@ -593,6 +613,35 @@ void set_particle_egg_model_params(int part, bool use_egg_model,
 }
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+void set_particle_heff(int part, Utils::Vector3d const &heff) {
+  mpi_update_particle_property<Utils::Vector3d,
+    &ParticleProperties::heff>(part, heff);
+}
+void set_particle_htherm(int part, Utils::Vector3d const &htherm) {
+  mpi_update_particle_property<Utils::Vector3d,
+    &ParticleProperties::htherm>(part, htherm);
+}
+void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega) {
+  mpi_update_particle_property<Utils::Vector3d,
+    &ParticleProperties::dip_omega>(part, dip_omega);
+}
+void set_particle_llg_model_params(int part, bool use_llg_model, double Hani, double Galpha, double gyromag, double magdt) {
+
+  auto llg_model_params = get_particle_data(part).llg_model_params();
+  
+  llg_model_params.use_llg_model = use_llg_model;
+  llg_model_params.Hani = Hani;
+  llg_model_params.Galpha = Galpha;
+  llg_model_params.gyromag = gyromag;
+  llg_model_params.magdt = magdt;
+
+  mpi_update_particle_property<
+      ParticleProperties::LLGModelParameters,
+      &ParticleProperties::llg_model_params>(part, llg_model_params);
+}
+#endif // MAGNETODYNAMICS_LLG_MODEL
+
 #ifdef ELECTROSTATICS
 void set_particle_q(int part, double q) {
   mpi_update_particle_property<double, &ParticleProperties::q>(part, q);
@@ -677,6 +726,21 @@ void set_particle_gamma_rot(int part, Utils::Vector3d const &gamma_rot) {
 }
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
+
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+#ifndef PARTICLE_ANISOTROPY
+void set_particle_gamma_mag(int part, double gamma_mag) {
+  mpi_update_particle_property<double, &ParticleProperties::gamma_mag>(
+      part, gamma_mag);
+}
+#else
+void set_particle_gamma_mag(int part, Utils::Vector3d const &gamma_mag) {
+  mpi_update_particle_property<Utils::Vector3d, &ParticleProperties::gamma_mag>(
+      part, gamma_mag);
+}
+#endif // PARTICLE_ANISOTROPY
+#endif // MAGNETODYNAMICS_LLG_MODEL
+
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES

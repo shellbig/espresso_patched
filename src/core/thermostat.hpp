@@ -128,6 +128,11 @@ public:
       gamma_rotation = gamma;
     }
     pref_noise_rotation = sigma(kT, time_step, gamma_rotation);
+    // If gamma_magnet is not set explicitly, use the translational one.
+    if (gamma_magnet < GammaType{}) {
+      gamma_magnet = gamma;
+    }
+    pref_noise_magnet = sigma(kT, time_step, gamma_magnet);
   }
   /** Calculate the noise prefactor.
    *  Evaluates the quantity @f$ \sqrt{2 k_B T \gamma / dt} / \sigma_\eta @f$
@@ -145,6 +150,8 @@ public:
   GammaType gamma = sentinel(GammaType{});
   /** Rotational friction coefficient @f$ \gamma_{\text{rot}} @f$. */
   GammaType gamma_rotation = sentinel(GammaType{});
+  /** Magnetic friction coefficient @f$ \gamma_{\text{mag}} @f$. */
+  GammaType gamma_magnet = sentinel(GammaType{});
   /**@}*/
   /** @name Prefactors */
   /**@{*/
@@ -160,6 +167,10 @@ public:
    *  Stores @f$ \sqrt{2 k_B T \gamma_{\text{rot}} / dt} / \sigma_\eta @f$.
    */
   GammaType pref_noise_rotation;
+  /** Prefactor for the magnetic field noise.
+   *  Stores @f$ \sqrt{2 k_B T \gamma_{\text{mag}} / dt} / \sigma_\eta @f$.
+   */
+  GammaType pref_noise_magnet;
   /**@}*/
 };
 
@@ -372,6 +383,9 @@ void mpi_set_brownian_gamma_rot(Thermostat::GammaType const &gamma);
 
 void mpi_set_langevin_gamma(Thermostat::GammaType const &gamma);
 void mpi_set_langevin_gamma_rot(Thermostat::GammaType const &gamma);
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+void mpi_set_langevin_gamma_mag(Thermostat::GammaType const &gamma);
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 void mpi_set_thermo_virtual(bool thermo_virtual);
 

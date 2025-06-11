@@ -92,6 +92,7 @@ or by calling the corresponding ``get_state()`` methods like::
     temperature = system.thermostat.get_state()[0]['kT']
     gamma = system.thermostat.get_state()[0]['gamma']
     gamma_rot = system.thermostat.get_state()[0]['gamma_rotation']
+    gamma_mag = system.thermostat.get_state()[0]['gamma_magnet']
 
 .. _Simulation box:
 

@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "HomogeneousMagneticField.hpp"
+#include "AlternatingMagneticField.hpp"
 
 #include "Observable_stat.hpp"
 #include "Particle.hpp"
@@ -24,29 +24,33 @@
 
 #include <utils/Vector.hpp>
 
+#include <cmath>
+
 namespace Constraints {
 
-ParticleForce HomogeneousMagneticField::force(const Particle &p,
-                                              const Utils::Vector3d &, double) {
+ParticleForce AlternatingMagneticField::force(const Particle &p,
+                                              const Utils::Vector3d &, double t) {
 #ifdef DIPOLES
-  return {{}, vector_product(p.calc_dip(), m_field)};
+  return {{}, vector_product(p.calc_dip(),
+                             m_amplitude * sin(m_omega * t + m_phase)) };
 #else
   return {};
 #endif
 }
 
-void HomogeneousMagneticField::add_energy(const Particle &p,
-                                          const Utils::Vector3d &, double,
+void AlternatingMagneticField::add_energy(const Particle &p,
+                                          const Utils::Vector3d &, double t,
                                           Observable_stat &obs_energy) const {
 #ifdef DIPOLES
-  obs_energy.dipolar[0] += -1.0 * m_field * p.calc_dip();
+  obs_energy.dipolar[0] += -1.0 * m_amplitude * sin(m_omega * t + m_phase) * p.calc_dip();
 #endif
 }
 
-Utils::Vector3d HomogeneousMagneticField::add_magnetic_field(const Particle &p,
-                                          const Utils::Vector3d &, double) const {
+Utils::Vector3d AlternatingMagneticField::add_magnetic_field(const Particle &p,
+                                          const Utils::Vector3d &,
+                                          double t) const {
 #ifdef DIPOLES
-  return m_field;
+  return m_amplitude * sin(m_omega * t + m_phase);
 #else
   return {0.,0.,0.};
 #endif

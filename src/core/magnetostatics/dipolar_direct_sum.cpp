@@ -30,6 +30,7 @@
 #include "communication.hpp"
 #include "constraints.hpp"
 #include "constraints/HomogeneousMagneticField.hpp"
+#include "constraints/AlternatingMagneticField.hpp"
 #include "errorhandling.hpp"
 #include "grid.hpp"
 
@@ -41,8 +42,6 @@
 #include <boost/mpi/collectives.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/range/counting_range.hpp>
-
-#include <nlopt.hpp>
 
 #include "event.hpp"
 #include "rotation.hpp"

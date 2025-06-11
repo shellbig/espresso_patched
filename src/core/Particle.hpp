@@ -246,6 +246,38 @@ struct ParticleProperties {
 
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  /** vector of the dipole moment */
+  Utils::Vector3d dipu = {0., 0., 1.};
+  //Utils::Vector3d dipu = Utils::convert_quaternion_to_director(Utils::Quaternion<double>::identity());
+  /** effective field */
+  Utils::Vector3d heff = {0., 0., 0.};
+  /** stochastic thermal field */
+  Utils::Vector3d htherm = {0., 0., 0.};
+  /** angular velocity of the dipole moment */
+  Utils::Vector3d dip_omega = {0., 0., 0.};
+
+  struct LLGModelParameters {
+    bool use_llg_model = false;
+    /** the maximum anisotropy field amplitude */
+    double Hani = 0.;
+    /** Gilbert damping parameter for Landau-Lifshitz-Gilbert equation */
+    double Galpha = 0.1;
+    /** the gyromagnetic ratio */
+    double gyromag = 100;
+    /** the time step for the internal magnetic problem */
+    double magdt = 1;
+    
+    template <class Archive> void serialize(Archive &ar, long int) {
+      ar & use_llg_model;
+      ar & Hani;
+      ar & Galpha;
+      ar & gyromag;
+      ar & magdt;
+    }
+  } llg_model_params;
+#endif // MAGNETODYNAMICS_LLG_MODEL
+
 #ifdef THERMOSTAT_PER_PARTICLE
 /** Friction coefficient for translation */
 #ifndef PARTICLE_ANISOTROPY
@@ -261,6 +293,14 @@ struct ParticleProperties {
   Utils::Vector3d gamma_rot = {-1., -1., -1.};
 #endif // PARTICLE_ANISOTROPY
 #endif // ROTATION
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+/** Friction coefficient for LLG_model */
+#ifndef PARTICLE_ANISOTROPY
+  double gamma_mag = -1.;
+#else
+  Utils::Vector3d gamma_mag = {-1., -1., -1.};
+#endif // PARTICLE_ANISOTROPY
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 
 #ifdef EXTERNAL_FORCES
@@ -316,6 +356,13 @@ struct ParticleProperties {
     ar & dt_incr;
 
 #endif // MAGNETODYNAMICS_TSW_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    ar & dipu;
+    ar & heff;
+    ar & htherm;
+    ar & dip_omega;
+    ar & llg_model_params;
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #ifdef VIRTUAL_SITES
     ar & is_virtual;
 #ifdef VIRTUAL_SITES_RELATIVE
@@ -331,6 +378,9 @@ struct ParticleProperties {
     ar & gamma;
 #ifdef ROTATION
     ar & gamma_rot;
+#endif
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    ar & gamma_mag;
 #endif
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
@@ -592,8 +642,31 @@ public:
 #ifdef DIPOLES
   auto const &dipm() const { return p.dipm; }
   auto &dipm() { return p.dipm; }
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  auto const &dipu() const { return p.dipu; }
+  auto &dipu() { return p.dipu; }
+  auto const &heff() const { return p.heff; }
+  auto &heff() { return p.heff; }
+  auto const &htherm() const { return p.htherm; }
+  auto &htherm() { return p.htherm; }
+  auto const &dip_omega() const { return p.dip_omega; }
+  auto &dip_omega() { return p.dip_omega; }
+  auto use_llg_model() const { return p.llg_model_params.use_llg_model; }
+  auto const &Hani() const { return p.llg_model_params.Hani; }
+  auto &Hani() { return p.llg_model_params.Hani; }
+  auto const &Galpha() const { return p.llg_model_params.Galpha; }
+  auto &Galpha() { return p.llg_model_params.Galpha; }
+  auto const &gyromag() const { return p.llg_model_params.gyromag; }
+  auto &gyromag() { return p.llg_model_params.gyromag; }
+  auto const &magdt() const { return p.llg_model_params.magdt; }
+  auto &magdt() { return p.llg_model_params.magdt; }
+  auto const &llg_model_params() const { return p.llg_model_params; }
+  auto &llg_model_params() { return p.llg_model_params; }
+  auto calc_dip() const { return use_llg_model() ? dipu() * dipm() : calc_director() * dipm(); }
+#else
   auto calc_dip() const { return calc_director() * dipm(); }
-#endif
+#endif // MAGNETODYNAMICS_LLG_MODEL
+#endif // DIPOLES
 #ifdef DIPOLE_FIELD_TRACKING
   auto const &dip_fld() const { return p.dip_fld; }
   auto &dip_fld() { return p.dip_fld; }
@@ -669,6 +742,10 @@ public:
   auto const &gamma_rot() const { return p.gamma_rot; }
   auto &gamma_rot() { return p.gamma_rot; }
 #endif // ROTATION
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  auto const &gamma_mag() const { return p.gamma_mag; }
+  auto &gamma_mag() { return p.gamma_mag; }
+#endif // MAGNETODYNAMICS_LLG_MODEL
 #endif // THERMOSTAT_PER_PARTICLE
 #ifdef EXTERNAL_FORCES
   auto &fixed() { return p.ext_flag; }
@@ -748,6 +825,10 @@ BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::vs_relative),
 BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::egg_model_params),
                            object_serializable)
 #endif // MAGNETODYNAMICS_EGG_MODEL
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+BOOST_CLASS_IMPLEMENTATION(decltype(ParticleProperties::llg_model_params),
+                           object_serializable)
+#endif // MAGNETODYNAMICS_LLG_MODEL
 
 BOOST_IS_BITWISE_SERIALIZABLE(ParticleParametersSwimming)
 BOOST_IS_BITWISE_SERIALIZABLE(ParticleProperties)
@@ -764,4 +845,8 @@ BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::vs_relative))
 #ifdef MAGNETODYNAMICS_EGG_MODEL
 BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::egg_model_params))
 #endif
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+BOOST_IS_BITWISE_SERIALIZABLE(decltype(ParticleProperties::llg_model_params))
+#endif
+
 #endif
