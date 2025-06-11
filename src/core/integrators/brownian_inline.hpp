@@ -61,7 +61,6 @@ inline void brownian_dynamics_propagator(BrownianThermostat const &brownian,
 
 #endif // ROTATION
     }
-
   }
   increment_sim_time(time_step);
 }

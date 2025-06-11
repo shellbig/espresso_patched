@@ -185,7 +185,7 @@ struct LongRangeEnergy : public boost::static_visitor<double> {
   }
 #endif
 };
-
+#ifdef DIPOLE_FIELD_TRACKING
 struct LongRangeField : public boost::static_visitor<void> {
   ParticleRange const &m_particles;
   explicit LongRangeField(ParticleRange const &particles)
@@ -201,7 +201,7 @@ struct LongRangeField : public boost::static_visitor<void> {
                         << "dipolar method " << Utils::demangle<T>();
   }
 };
-
+#endif // DIPOLE_FIELD_TRACKING
 void calc_long_range_force(ParticleRange const &particles) {
   if (magnetostatics_actor) {
     boost::apply_visitor(LongRangeForce(particles), *magnetostatics_actor);
@@ -215,13 +215,13 @@ double calc_energy_long_range(ParticleRange const &particles) {
   }
   return 0.;
 }
-
+#ifdef DIPOLE_FIELD_TRACKING
 void calc_long_range_field(ParticleRange const &particles) {
   if (magnetostatics_actor) {
     boost::apply_visitor(LongRangeField(particles), *magnetostatics_actor);
   }
 }
-
+#endif // DIPOLE_FIELD_TRACKING
 namespace detail {
 bool flag_all_reduce(bool flag) {
   return boost::mpi::all_reduce(comm_cart, flag, std::logical_or<>());
