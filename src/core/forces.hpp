@@ -68,4 +68,9 @@ void npt_add_virial_force_contribution(const Utils::Vector3d &force,
                                        const Utils::Vector3d &d);
 #endif
 
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+/** Update the effective magnetic field */
+void update_effective_magnetic_field(ParticleRange const &particles);
+#endif
+
 #endif

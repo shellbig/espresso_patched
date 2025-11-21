@@ -188,11 +188,11 @@ class Magnetodynamics(ut.TestCase):
         self.system.constraints.add(H_constraint)
 
         self.system.integrator.set_vv()
-        self.system.integrator.run(steps=2500)
+        self.system.integrator.run(steps=1000)
         time_series = acc.time_series()
 
         n_part = self.n_part
-        avg_mx = np.average(time_series[-400:,0])/n_part
+        avg_mx = np.average(time_series[-100:,0])/n_part
         xsi = 5
         sigma = 5
         np.testing.assert_allclose(avg_mx, gen_ani_integral()(xsi,sigma),

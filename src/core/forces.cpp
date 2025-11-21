@@ -144,6 +144,9 @@ static void init_forces(const ParticleRange &particles,
 #ifdef DIPOLE_FIELD_TRACKING
     p.dip_fld() = {0, 0, 0};
 #endif // DIPOLE_FIELD_TRACKING
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    p.heff() = {0, 0, 0};
+#endif // MAGNETODYNAMICS_LLG_MODEL
   }
 
   /* initialize ghost forces with zero
@@ -154,6 +157,9 @@ static void init_forces(const ParticleRange &particles,
 #ifdef DIPOLE_FIELD_TRACKING
     p.dip_fld() = {0, 0, 0};
 #endif // DIPOLE_FIELD_TRACKING
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+    p.heff() = {0, 0, 0};
+#endif // MAGNETODYNAMICS_LLG_MODEL
   }
 }
 
@@ -228,6 +234,9 @@ void force_calc(CellStructure &cell_structure, double time_step, double kT) {
                         dipole_cutoff, collision_detection_cutoff()});
 
   Constraints::constraints.add_forces(particles, get_sim_time());
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+  update_effective_magnetic_field(particles);
+#endif
 
   if (max_oif_objects) {
     // There are two global quantities that need to be evaluated:
@@ -307,3 +316,14 @@ void npt_add_virial_force_contribution(const Utils::Vector3d &force,
   npt_add_virial_contribution(force, d);
 }
 #endif
+
+#ifdef MAGNETODYNAMICS_LLG_MODEL
+void update_effective_magnetic_field(ParticleRange const &particles) {
+  for (auto &p : particles) {
+    p.heff() += p.htherm();
+#ifdef DIPOLE_FIELD_TRACKING
+    p.heff() += p.dip_fld();
+#endif // DIPOLE_FIELD_TRACKING
+  }
+}
+#endif // MAGNETODYNAMICS_LLG_MODEL

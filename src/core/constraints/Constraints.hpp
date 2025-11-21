@@ -93,7 +93,7 @@ public:
     }
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    /** Adding the magnetic field from only the magnetic field constraints to the effective field for magnetodynamics */
+    /** Adding the magnetic field constraints to the effective magnetic field */
     for (auto &p : particles) {
       auto const pos = folded_position(p.pos(), box_geo);
       Utils::Vector3d mag_fields = {0.,0.,0.};
@@ -107,7 +107,7 @@ public:
         }
       }
 
-      p.heff() = mag_fields;
+      p.heff() += mag_fields;
     }
 #endif
   }

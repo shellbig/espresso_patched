@@ -23,7 +23,7 @@ inline Utils::Vector3d llg(Utils::Vector3d dip, Particle &p) {
   auto const Galpha   = p.llg_model_params().Galpha;  // Gilbert damping
   auto const easy_axis= p.calc_director();
 
-  // calculate the anisotropy field to later add to the effective field
+  // calculate the anisotropy field and add to the effective magnetic field
   Utils::Vector3d const hani = p.llg_model_params().Hani * (dip*easy_axis) * easy_axis;
   
   p.dip_omega() = p.llg_model_params().gyromag / (1. + Galpha*Galpha) *
@@ -76,10 +76,9 @@ inline void apply_magnetic_torque(Particle &p, double time_step) {
   Utils::Vector3d const dip = p.dipu();
   auto const gyromag  = p.llg_model_params().gyromag; // gyromagnetic ratio
 
-  // summing the field components that are constant during one mechanical step
+  // adding the Barnett field to the effective magnetic field
   // dipole-dipole-interaction field, thermal field, external field, Barnett field
-  p.heff() += p.dip_fld() + p.htherm()
-    - vector_product(dip,convert_vector_body_to_space(p, p.omega()))
+  p.heff() -= vector_product(dip,convert_vector_body_to_space(p, p.omega()))
     * p.llg_model_params().Galpha/gyromag;
   // Einstein-de-Haas effect
   p.torque() += 1./gyromag * llg(dip, p) * p.dipm();
