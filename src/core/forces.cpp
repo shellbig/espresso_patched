@@ -235,7 +235,7 @@ void force_calc(CellStructure &cell_structure, double time_step, double kT) {
 
   Constraints::constraints.add_forces(particles, get_sim_time());
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-  update_effective_magnetic_field(particles);
+  update_mag_field_and_edh_torque(particles);
 #endif
 
   if (max_oif_objects) {
@@ -275,13 +275,6 @@ void force_calc(CellStructure &cell_structure, double time_step, double kT) {
     }
   }
 #endif // MAGNETODYNAMICS_EGG_MODEL
-#ifdef MAGNETODYNAMICS_LLG_MODEL
-  for (auto &p : particles) {
-    if (p.llg_model_params().use_llg_model) {
-      apply_magnetic_torque(p, time_step);
-    }
-  }
-#endif // MAGNETODYNAMICS_LLG_MODEL
 
   // Communication Step: ghost forces
   cell_structure.ghosts_reduce_forces();
@@ -316,14 +309,3 @@ void npt_add_virial_force_contribution(const Utils::Vector3d &force,
   npt_add_virial_contribution(force, d);
 }
 #endif
-
-#ifdef MAGNETODYNAMICS_LLG_MODEL
-void update_effective_magnetic_field(ParticleRange const &particles) {
-  for (auto &p : particles) {
-    p.heff() += p.htherm();
-#ifdef DIPOLE_FIELD_TRACKING
-    p.heff() += p.dip_fld();
-#endif // DIPOLE_FIELD_TRACKING
-  }
-}
-#endif // MAGNETODYNAMICS_LLG_MODEL

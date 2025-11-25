@@ -43,9 +43,9 @@ inline void velocity_verlet_propagate_vel_pos(const ParticleRange &particles,
 #ifdef MAGNETODYNAMICS_LLG_MODEL
     if (p.llg_model_params().use_llg_model) {
       propagate_dipu_particle_multi_step(p, time_step);
-    } else {    // rigid particle
-      p.dipu() = convert_quaternion_to_director(p.quat());
+    } else {    // rigid dipole particle
       p.dip_omega() = convert_vector_body_to_space(p, p.omega());
+      p.dipu() = convert_quaternion_to_director(p.quat());
     }
 #endif // MAGNETODYNAMICS_LLG_MODEL
 
@@ -85,6 +85,8 @@ inline void velocity_verlet_propagate_vel_final(const ParticleRange &particles,
 #ifdef MAGNETODYNAMICS_LLG_MODEL
     if (!p.llg_model_params().use_llg_model) {
       p.dip_omega() = convert_vector_body_to_space(p, p.omega());
+    } else {
+      p.dip_omega() = propagate_dip_omega(p, p.dipu());
     }
 #endif // MAGNETODYNAMICS_LLG_MODEL
   }

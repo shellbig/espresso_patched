@@ -32,7 +32,7 @@ class Magnetodynamics(ut.TestCase):
     system = espressomd.System(box_l=[1.0, 1.0, 1.0])
     system.time_step = 0.001
     system.cell_system.skin = 1.3
-    n_part = 1024
+    n_part = 4000
 
     np.random.seed(1)
     
