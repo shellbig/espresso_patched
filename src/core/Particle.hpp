@@ -251,16 +251,16 @@ struct ParticleProperties {
   Utils::Vector3d dipu = {0., 0., 1.};
   //Utils::Vector3d dipu = Utils::convert_quaternion_to_director(Utils::Quaternion<double>::identity());
   /** effective field */
-  Utils::Vector3d heff = {0., 0., 0.};
+  Utils::Vector3d b_eff = {0., 0., 0.};
   /** stochastic thermal field */
-  Utils::Vector3d htherm = {0., 0., 0.};
+  Utils::Vector3d b_therm = {0., 0., 0.};
   /** angular velocity of the dipole moment */
   Utils::Vector3d dip_omega = {0., 0., 0.};
 
   struct LLGModelParameters {
     bool use_llg_model = false;
     /** the maximum anisotropy field amplitude */
-    double Hani = 0.;
+    double B_ani = 0.;
     /** Gilbert damping parameter for Landau-Lifshitz-Gilbert equation */
     double Galpha = 0.1;
     /** the gyromagnetic ratio */
@@ -270,7 +270,7 @@ struct ParticleProperties {
     
     template <class Archive> void serialize(Archive &ar, long int) {
       ar & use_llg_model;
-      ar & Hani;
+      ar & B_ani;
       ar & Galpha;
       ar & gyromag;
       ar & magdt;
@@ -358,8 +358,8 @@ struct ParticleProperties {
 #endif // MAGNETODYNAMICS_TSW_MODEL
 #ifdef MAGNETODYNAMICS_LLG_MODEL
     ar & dipu;
-    ar & heff;
-    ar & htherm;
+    ar & b_eff;
+    ar & b_therm;
     ar & dip_omega;
     ar & llg_model_params;
 #endif // MAGNETODYNAMICS_LLG_MODEL
@@ -645,15 +645,15 @@ public:
 #ifdef MAGNETODYNAMICS_LLG_MODEL
   auto const &dipu() const { return p.dipu; }
   auto &dipu() { return p.dipu; }
-  auto const &heff() const { return p.heff; }
-  auto &heff() { return p.heff; }
-  auto const &htherm() const { return p.htherm; }
-  auto &htherm() { return p.htherm; }
+  auto const &b_eff() const { return p.b_eff; }
+  auto &b_eff() { return p.b_eff; }
+  auto const &b_therm() const { return p.b_therm; }
+  auto &b_therm() { return p.b_therm; }
   auto const &dip_omega() const { return p.dip_omega; }
   auto &dip_omega() { return p.dip_omega; }
   auto use_llg_model() const { return p.llg_model_params.use_llg_model; }
-  auto const &Hani() const { return p.llg_model_params.Hani; }
-  auto &Hani() { return p.llg_model_params.Hani; }
+  auto const &B_ani() const { return p.llg_model_params.B_ani; }
+  auto &B_ani() { return p.llg_model_params.B_ani; }
   auto const &Galpha() const { return p.llg_model_params.Galpha; }
   auto &Galpha() { return p.llg_model_params.Galpha; }
   auto const &gyromag() const { return p.llg_model_params.gyromag; }

@@ -302,16 +302,16 @@ ParticleHandle::ParticleHandle() {
        }},
 #endif // MAGNETODYNAMICS_EGG_MODEL
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-      {"heff",
+      {"b_eff",
        [this](Variant const &value) {
          set_particle_heff(m_pid, get_value<Utils::Vector3d>(value));
        },
-       [this]() { return particle().heff(); }},
-      {"htherm",
+       [this]() { return particle().b_eff(); }},
+      {"b_therm",
        [this](Variant const &value) {
          set_particle_htherm(m_pid, get_value<Utils::Vector3d>(value));
        },
-       [this]() { return particle().htherm(); }},
+       [this]() { return particle().b_therm(); }},
       {"dip_omega",
        [this](Variant const &value) {
          set_particle_dip_omega(m_pid, get_value<Utils::Vector3d>(value));
@@ -329,19 +329,19 @@ ParticleHandle::ParticleHandle() {
            }
            // Assign the parsed values to the LLGModelParameters structure
            llg_model_params.use_llg_model = get_value<bool>(array[0]);
-           llg_model_params.Hani = get_value<double>(array[1]);
+           llg_model_params.B_ani = get_value<double>(array[1]);
            llg_model_params.Galpha = get_value<double>(array[2]);
            llg_model_params.gyromag = get_value<double>(array[3]);
            llg_model_params.magdt = get_value<double>(array[4]);
            } catch (...) {
              throw std::invalid_argument(error_msg(
                "llg_model_params",
-               "must take the form [use_llg_model, Hani, Galpha, gyromag, magdt]"));
+               "must take the form [use_llg_model, B_ani, Galpha, gyromag, magdt]"));
            }
 
            // Call the setter function to update the particle properties
            set_particle_llg_model_params(m_pid, llg_model_params.use_llg_model,
-                    llg_model_params.Hani,
+                    llg_model_params.B_ani,
                     llg_model_params.Galpha,
                     llg_model_params.gyromag,
                     llg_model_params.magdt);
@@ -350,7 +350,7 @@ ParticleHandle::ParticleHandle() {
          // Retrieve the particle's current LLGModelParameters
          auto const &p = particle();
          auto const &params = p.llg_model_params();
-         return std::vector<Variant>{{params.use_llg_model, params.Hani,
+         return std::vector<Variant>{{params.use_llg_model, params.B_ani,
                                       params.Galpha, params.gyromag,
                                       params.magdt}};
        }},

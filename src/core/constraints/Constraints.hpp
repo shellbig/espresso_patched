@@ -107,7 +107,7 @@ public:
         }
       }
 
-      p.heff() += mag_fields;
+      p.b_eff() += mag_fields;
     }
 #endif
   }

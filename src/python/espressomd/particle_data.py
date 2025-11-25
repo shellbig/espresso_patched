@@ -245,13 +245,13 @@ class ParticleHandle(ScriptInterfaceHelper):
         .. note::
            This needs the feature ``DIPOLES``.
     
-    heff: (3,) array_like of :obj:`float`
+    b_eff: (3,) array_like of :obj:`float`
         The effective field at the position of the particle
 
         .. note::
            This needs the feature ``MAGNETODYNAMICS_LLG_MODEL``.
 
-    htherm: (3,) array_like of :obj:`float`
+    b_therm: (3,) array_like of :obj:`float`
         The thermal field
 
         .. note::
@@ -268,7 +268,7 @@ class ParticleHandle(ScriptInterfaceHelper):
 
         Allows for manual access to the attributes of dipoles in the
         "LLG_model" implementation. Format: ``(PID, use_llg_model,
-        Hani, Galpha, gyromag, magdt)``.
+        B_ani, Galpha, gyromag, magdt)``.
         PID denotes the id of the particle for which the LLG_model can be
         activated with use_llg_model.
         The Gilbert damping parameter Galpha and the gyromagnetic ratio have to be

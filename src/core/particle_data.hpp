@@ -211,16 +211,16 @@ void set_particle_axis_quat_body(int part,
 #ifdef MAGNETODYNAMICS_LLG_MODEL
 /** Call only on the head node: set particle effective field.
  *  @param part the particle.
- *  @param heff its effective field (consisting of the stray field of other particles, 
+ *  @param b_eff its effective field (consisting of the stray field of other particles, 
  *  the external field and the anisotropy field of the particle)
  */
-void set_particle_heff(int part, Utils::Vector3d const &heff);
+void set_particle_heff(int part, Utils::Vector3d const &b_eff);
 
 /** Call only on the head node: set particle thermal field.
  *  @param part the particle.
- *  @param htherm its stochastic thermal field
+ *  @param b_therm its stochastic thermal field
  */
-void set_particle_htherm(int part, Utils::Vector3d const &htherm);
+void set_particle_htherm(int part, Utils::Vector3d const &b_therm);
 
 /** Call only on the head node: set dipolar angular velocity of the particle.
  *  @param part the particle.
@@ -231,13 +231,13 @@ void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega);
 /** Call only on the head node: set parameters for the LLG model.
  *  @param part the particle.
  *  @param use_llg_model a flag to activate the llg_model.
- *  @param Hani the particle's maximum anisotropy field.
+ *  @param B_ani the particle's maximum anisotropy field.
  *  @param Galpha the Gilbert damping parameter.
  *  @param gyromag the gyromagnetic ratio.
  *  @param magdt the time step for the magnetic integration.
  */
 void set_particle_llg_model_params(int part, bool use_llg_model,
-                                   double Hani, double Galpha,
+                                   double B_ani, double Galpha,
                                    double gyromag, double magdt);
 
 #endif // MAGNETODYNAMICS_LLG_MODEL
@@ -384,12 +384,12 @@ inline Utils::Vector3d get_particle_axis(Particle const *p) {
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
 inline void get_particle_llg_model_params(Particle const *p, int &use_llg_model,
-                                          double &Hani,
+                                          double &B_ani,
                                           double &Galpha,
                                           double &gyromag,
                                           double &magdt) {
   use_llg_model = p->llg_model_params().use_llg_model;
-  Hani = p->llg_model_params().Hani;
+  B_ani = p->llg_model_params().B_ani;
   Galpha = p->llg_model_params().Galpha;
   gyromag = p->llg_model_params().gyromag;
   magdt = p->llg_model_params().magdt;

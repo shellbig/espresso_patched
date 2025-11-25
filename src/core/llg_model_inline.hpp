@@ -21,7 +21,7 @@
 inline Utils::Vector3d propagate_dip_omega(Particle &p, Utils::Vector3d dip) {
   auto const Galpha = p.llg_model_params().Galpha;  // Gilbert damping
   return p.llg_model_params().gyromag / (1. + Galpha*Galpha) *
-    (p.heff() + Galpha * vector_product(dip, p.heff()));
+    (p.b_eff() + Galpha * vector_product(dip, p.b_eff()));
 }
 
 // calculating the change in magnetic momentum
@@ -75,19 +75,18 @@ inline void update_mag_field_and_edh_torque(ParticleRange const &particles) {
 
     // the external fields is already added in the Constraints
     // thermal, crystalline anisotropy, and Barnett field
-    p.heff() += p.htherm() + p.llg_model_params().Hani * (dip*easy_axis) * easy_axis
+    p.b_eff() += p.b_therm() + p.llg_model_params().B_ani * (dip*easy_axis) * easy_axis
       - vector_product(dip,convert_vector_body_to_space(p, p.omega()))
       * p.llg_model_params().Galpha/p.llg_model_params().gyromag;
     
 #ifdef DIPOLE_FIELD_TRACKING
     // dipolar interaction field
-    p.heff() += p.dip_fld();
+    p.b_eff() += p.dip_fld();
 #endif // DIPOLE_FIELD_TRACKING
     // TODO add the field energy terms to the system energy
 
     // Einstein-de-Haas effect
     p.torque() -= 1./p.llg_model_params().gyromag * llg(p, dip) * p.dipm();
-    // TODO check again (equation, sign)!
   }
 }
 #endif // MAGNETODYNAMICS_LLG_MODEL

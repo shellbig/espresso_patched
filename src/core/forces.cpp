@@ -137,7 +137,7 @@ static void init_forces(const ParticleRange &particles,
   for (auto &p : particles) {
     p.f = init_real_particle_force(p, time_step, kT);
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    p.htherm() = p.llg_model_params().use_llg_model ? 
+    p.b_therm() = p.llg_model_params().use_llg_model ? 
                 mag_field_thermo_langevin(langevin, p, time_step, kT)
                 : Utils::Vector3d{};
 #endif
@@ -145,7 +145,7 @@ static void init_forces(const ParticleRange &particles,
     p.dip_fld() = {0, 0, 0};
 #endif // DIPOLE_FIELD_TRACKING
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    p.heff() = {0, 0, 0};
+    p.b_eff() = {0, 0, 0};
 #endif // MAGNETODYNAMICS_LLG_MODEL
   }
 
@@ -158,7 +158,7 @@ static void init_forces(const ParticleRange &particles,
     p.dip_fld() = {0, 0, 0};
 #endif // DIPOLE_FIELD_TRACKING
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    p.heff() = {0, 0, 0};
+    p.b_eff() = {0, 0, 0};
 #endif // MAGNETODYNAMICS_LLG_MODEL
   }
 }

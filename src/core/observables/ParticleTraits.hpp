@@ -49,16 +49,16 @@ template <> struct traits<Particle> {
     return Utils::Vector3d{};
 #endif
   }
-  auto heff(Particle const &p) const {
+  auto b_eff(Particle const &p) const {
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    return p.heff();
+    return p.b_eff();
 #else
     return Utils::Vector3d{};
 #endif
   }
-  auto htherm(Particle const &p) const {
+  auto b_therm(Particle const &p) const {
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-    return p.htherm();
+    return p.b_therm();
 #else
     return Utils::Vector3d{};
 #endif

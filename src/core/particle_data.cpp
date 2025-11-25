@@ -140,8 +140,8 @@ using UpdatePropertyMessage = boost::variant
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
         , UpdateProperty<Utils::Vector3d, &Prop::dipu>
-        , UpdateProperty<Utils::Vector3d, &Prop::heff>
-        , UpdateProperty<Utils::Vector3d, &Prop::htherm>
+        , UpdateProperty<Utils::Vector3d, &Prop::b_eff>
+        , UpdateProperty<Utils::Vector3d, &Prop::b_therm>
         , UpdateProperty<Utils::Vector3d, &Prop::dip_omega>
         , UpdateProperty<ParticleProperties::LLGModelParameters,
                          &Prop::llg_model_params>
@@ -614,24 +614,24 @@ void set_particle_egg_model_params(int part, bool use_egg_model,
 #endif // MAGNETODYNAMICS_EGG_MODEL
 
 #ifdef MAGNETODYNAMICS_LLG_MODEL
-void set_particle_heff(int part, Utils::Vector3d const &heff) {
+void set_particle_heff(int part, Utils::Vector3d const &b_eff) {
   mpi_update_particle_property<Utils::Vector3d,
-    &ParticleProperties::heff>(part, heff);
+    &ParticleProperties::b_eff>(part, b_eff);
 }
-void set_particle_htherm(int part, Utils::Vector3d const &htherm) {
+void set_particle_htherm(int part, Utils::Vector3d const &b_therm) {
   mpi_update_particle_property<Utils::Vector3d,
-    &ParticleProperties::htherm>(part, htherm);
+    &ParticleProperties::b_therm>(part, b_therm);
 }
 void set_particle_dip_omega(int part, Utils::Vector3d const &dip_omega) {
   mpi_update_particle_property<Utils::Vector3d,
     &ParticleProperties::dip_omega>(part, dip_omega);
 }
-void set_particle_llg_model_params(int part, bool use_llg_model, double Hani, double Galpha, double gyromag, double magdt) {
+void set_particle_llg_model_params(int part, bool use_llg_model, double B_ani, double Galpha, double gyromag, double magdt) {
 
   auto llg_model_params = get_particle_data(part).llg_model_params();
   
   llg_model_params.use_llg_model = use_llg_model;
-  llg_model_params.Hani = Hani;
+  llg_model_params.B_ani = B_ani;
   llg_model_params.Galpha = Galpha;
   llg_model_params.gyromag = gyromag;
   llg_model_params.magdt = magdt;
